@@ -13,6 +13,8 @@
 typedef struct Cell     sCell;
 typedef struct table    stable;
 
+enum blocks { ENERGY = 1, MITOSIS, FORBIDDEN, NORMAL };
+
 struct String {
     char s[MAXN];
     int sz;
@@ -25,13 +27,32 @@ struct Cell {
 };
 
 struct table {
-    int x, y;
+    int state;
 };
 
 sCell* lst;//سلول ها 
 stable Tbl[MAXN][MAXN];
 int n;
+FILE* f1;
+
+void MyRead();
 
 int main() {
-    
+    MyRead();
+}
+
+void MyRead() {
+    f1 = fopen("map.bin", "rb");
+    if (fread(&n, sizeof(int), 1, f1) < 1) {
+        printf("Error occured\n");
+        return 0;
+    }
+    printf("%d\n", n);
+    for (int i = 0; i < n; i++) {
+        char state[MAXN];
+        fread(state, sizeof(char), n, f1);
+        for (int j = 0; j < n; j++)
+            Tbl[i][j].state = state[j] - '0';
+    }
+    fclose(f1);
 }
