@@ -4,6 +4,7 @@ void Print(char* str) {
         printf("%c", str[i]);
     }
 }
+
 void RunMapEditor() {
     int rel[512][512];
     char table[512][512][3];
@@ -60,15 +61,9 @@ void RunMapEditor() {
                     for (int k = 0; k < n; k++)    table[i][j][k] = st[k];
                 else 
                     for (int k = 0; k < n; k++)    table[i][j][k] = ts[k];
-
             }
         }
     }
-    HANDLE h = GetStdHandle ( STD_OUTPUT_HANDLE );
-    WORD wOldColorAttrs;
-    CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
-    GetConsoleScreenBufferInfo(h, &csbiInfo);
-    wOldColorAttrs = csbiInfo.wAttributes; 
     for (int j = 0; j < len; j++) 
         for (int i = 0; i < len; i++) {
             int x = 4 * j + 2, y = 4 * i + 1;
@@ -79,6 +74,11 @@ void RunMapEditor() {
             table[y][x][2] = '(', table[y][x + 1][0] = j + '0', table[y][x + 1][1] = ',', 
             table[y][x + 1][2] = '0' + len - i - 1, table[y][x + 2][0] = ')';
         }
+    HANDLE h = GetStdHandle ( STD_OUTPUT_HANDLE );
+    WORD wOldColorAttrs;
+    CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
+    GetConsoleScreenBufferInfo(h, &csbiInfo);
+    wOldColorAttrs = csbiInfo.wAttributes; 
     sleep(.5);
     system("cls");
     SetConsoleTextAttribute ( h, FOREGROUND_BLUE);
@@ -147,7 +147,8 @@ void RunMapEditor() {
         if (i % 2 == 1) 
             y += 2;
         if (tmp == 'E')
-            table[y - 2][x][1] = tmp, table[y - 2][x][2] = '=', table[y - 2][x + 1][0] = '1', table[y - 2][x + 1][1] = '0', table[y - 2][x + 1][2] = '0';
+            table[y - 2][x][1] = tmp, table[y - 2][x][2] = '=', table[y - 2][x + 1][0] = '1'
+            , table[y - 2][x + 1][1] = '0', table[y - 2][x + 1][2] = '0';
         else 
             table[y - 2][x + 1][1] = tmp;
     }
@@ -178,4 +179,5 @@ void RunMapEditor() {
             char tmp = rel[j][len - i - 1] + '0';
             fwrite(&tmp, sizeof(char), 1, fp);
         }
+    fclose(fp);
 }
