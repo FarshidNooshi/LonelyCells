@@ -9,11 +9,13 @@
 #define MAXN 512
 
 struct ZEUS {
-    int state;
+    int state = -1;
 }rel[MAXN][MAXN];
 
+void Print(char* );
+
 int main() {
-    printf("PLEASE ENTER THE LENGTH OF THE TABLE. (IT SHOULD BE SMALLER THAN 10 IN ORDER TO FIR IN THE CMD. )\n");
+    Print("PLEASE ENTER THE LENGTH OF THE TABLE. (IT SHOULD BE SMALLER THAN 10 IN ORDER TO FIR IN THE CMD. )\n");
     int n = 3, len;  scanf("%d", &len);
     char st[] = "** ", ts[] = "   ";
     int Z = 4 * len + 3;
@@ -80,61 +82,105 @@ int main() {
                 y += 2;
             else 
                 y += 4;
-            table[y][x][0] = j + '0', table[y][x][1] = ' ', table[y][x][2] = '0' + len - i - 1;
+            table[y][x][2] = '(', table[y][x + 1][0] = j + '0', table[y][x + 1][1] = ',', 
+            table[y][x + 1][2] = '0' + len - i - 1, table[y][x + 2][0] = ')';
         }
+    sleep(.5);
+    system("cls");
     SetConsoleTextAttribute ( h, FOREGROUND_BLUE);
-    printf("Now it's the primary table, I'm waiting for your order's to initialize the table.\n");
+    Print("Now it's the primary table, I'm waiting for your order's to initialize the table.\n");
     SetConsoleTextAttribute ( h, FOREGROUND_GREEN);
     for (int i = 0; i < Z; i++) {
-        for (int j = 0; j < Z; j++) {
-            if (table[i][j][0] >= '0' && table[i][j][0] <= '9') 
-                SetConsoleTextAttribute ( h, FOREGROUND_RED | FOREGROUND_GREEN);
-            for (int k = 0; k < n; k++) 
-                printf("%c", table[i][j][k]);
-            if (table[i][j][0] >= '0' && table[i][j][0] <= '9') 
-                SetConsoleTextAttribute ( h, FOREGROUND_GREEN);
-        }
+        for (int j = 0; j < Z; j++) 
+            for (int k = 0; k < n; k++) {
+                char tmp = table[i][j][k];
+                if ((tmp >= '0' && tmp <= '9')) 
+                    SetConsoleTextAttribute ( h, FOREGROUND_RED | FOREGROUND_GREEN);
+                else if (tmp == '*')
+                    SetConsoleTextAttribute ( h, FOREGROUND_GREEN);
+                else 
+                    SetConsoleTextAttribute ( h, FOREGROUND_RED | FOREGROUND_BLUE);
+                printf("%c", tmp);
+            }
         printf("\n");
     }
     int Q;
     SetConsoleTextAttribute ( h, FOREGROUND_BLUE);
-    printf("It's the user manual. First tell me the number of changes you wish for.\n");
+    Print("It's the user manual. First tell me the number of changes you wish for.\n");
     scanf("%d", &Q);
     while (Q--) {
         sleep(.5);
         system("cls");
         SetConsoleTextAttribute ( h, FOREGROUND_GREEN);
         for (int i = 0; i < Z; i++) {
-            for (int j = 0; j < Z; j++) {
-                if (table[i][j][0] >= '0' && table[i][j][0] <= '9') 
-                    SetConsoleTextAttribute ( h, FOREGROUND_RED | FOREGROUND_GREEN);
-                for (int k = 0; k < n; k++) 
-                    printf("%c", table[i][j][k]);
-                if (table[i][j][0] >= '0' && table[i][j][0] <= '9') 
-                    SetConsoleTextAttribute ( h, FOREGROUND_GREEN);
-            }
+            for (int j = 0; j < Z; j++) 
+                for (int k = 0; k < n; k++) {
+                    char tmp = table[i][j][k];
+                    if ((tmp >= '0' && tmp <= '9')) 
+                        SetConsoleTextAttribute ( h, FOREGROUND_RED | FOREGROUND_GREEN);
+                    else if (tmp == '*')
+                        SetConsoleTextAttribute ( h, FOREGROUND_GREEN);
+                    else 
+                        SetConsoleTextAttribute ( h, FOREGROUND_RED | FOREGROUND_BLUE);
+                    printf("%c", tmp);
+                }
             printf("\n");
         }
         int i, j;
         SetConsoleTextAttribute ( h, FOREGROUND_BLUE);
-        printf("please say the cordinates that you wish to change it's state.(It's format should be like I J)\n");
+        Print("please say the cordinates that you wish to change it's state.(It's format should be like I J)\n");
         scanf("%d%d", &i, &j);
-        printf("[1] = ENERGY\n");
-        printf("[2] = MITOSIS\n");
-        printf("[3] = FORBIDDEN\n");
-        printf("[4] = NORMAL\n");
+        Print("[1] = ENERGY\n");
+        Print("[2] = MITOSIS\n");
+        Print("[3] = FORBIDDEN\n");
+        Print("[4] = NORMAL\n");
         int state;  scanf("%d", &state);
-        if (i >= len || j >= len || state < 1 || state > 4 || i < 0 || j < 0) {
-            printf("INVALID INPUT\nTRY AGAIN\n");
+        int x = 4 * i + 2, y = 4 * (len - j - 1) + 3;
+        if (i >= len || j >= len || state < 1 || state > 4 || i < 0 || j < 0 || rel[y][x].state != -1) {
+            Print("INVALID INPUT\nTRY AGAIN\n");
+            Sleep(1000);
             Q++;
+            continue;
         }
-        int x = 4 * j + 2, y = 4 * i + 1;
-        if (j % 2 == 0)
+        rel[y][x].state = state;
+        char tmp = 'E';
+        if (state == 2) 
+            tmp = 'M';
+        else if (state == 3)
+            tmp = 'F';
+        else if (state == 4)
+            tmp = 'N';
+        if (i % 2 == 1) 
             y += 2;
+        if (tmp == 'E')
+            table[y - 2][x][1] = tmp, table[y - 2][x][2] = '=', table[y - 2][x + 1][0] = '1', table[y - 2][x + 1][1] = '0', table[y - 2][x + 1][2] = '0';
         else 
-            y += 4;
-        rel[x][y].state = state;
+            table[y - 2][x + 1][1] = tmp;
+    }
+    sleep(.5);
+    system("cls");
+    SetConsoleTextAttribute ( h, FOREGROUND_GREEN);
+    for (int i = 0; i < Z; i++) {
+        for (int j = 0; j < Z; j++) 
+            for (int k = 0; k < n; k++) {
+                char tmp = table[i][j][k];
+                if ((tmp >= '0' && tmp <= '9')) 
+                    SetConsoleTextAttribute ( h, FOREGROUND_RED | FOREGROUND_GREEN);
+                else if (tmp == '*')
+                    SetConsoleTextAttribute ( h, FOREGROUND_GREEN);
+                else 
+                    SetConsoleTextAttribute ( h, FOREGROUND_RED | FOREGROUND_BLUE);
+                printf("%c", tmp);
+            }
+        printf("\n");
     }
     SetConsoleTextAttribute ( h, wOldColorAttrs);
     return 0;
+}
+
+void Print(char* str) {
+    for (int i = 0; str[i] != '\0'; i++) {
+        Sleep(10);
+        printf("%c", str[i]);
+    }
 }
