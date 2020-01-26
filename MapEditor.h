@@ -1,25 +1,19 @@
-//In The Name Of GOD
-#include<time.h>
-#include<math.h>
-#include<stdio.h>
-#include<stdlib.h>
-#include<Windows.h>
-#include<unistd.h>
-
-#define MAXN 512
-
-struct ZEUS {
-    int state = -1;
-}rel[MAXN][MAXN];
-
-void Print(char* );
-
-int main() {
-    Print("PLEASE ENTER THE LENGTH OF THE TABLE. (IT SHOULD BE SMALLER THAN 10 IN ORDER TO FIR IN THE CMD. )\n");
-    int n = 3, len;  scanf("%d", &len);
+void Print(char* str) {
+    for (int i = 0; str[i] != '\0'; i++) {
+        Sleep(10);
+        printf("%c", str[i]);
+    }
+}
+void RunMapEditor() {
+    int rel[512][512];
+    char table[512][512][3];
+    for (int i = 0; i < 512; i++)
+        for (int j = 0; j < 512; j++)
+            rel[i][j] = -1;
     char st[] = "** ", ts[] = "   ";
+    Print("Please enter the length of the table. (It should be smaller than 10 in order to fit in The CMD. )\n");
+    int n = 3, len;  scanf("%d", &len);
     int Z = 4 * len + 3;
-    char table[MAXN][MAXN][3];
     for (int i  = 0; i < Z; i++) {
         for (int j = 0; j < Z; j++) {
             int w = i % (2 * n - 2), x = j % (4 * n - 4);
@@ -136,13 +130,13 @@ int main() {
         Print("[4] = NORMAL\n");
         int state;  scanf("%d", &state);
         int x = 4 * i + 2, y = 4 * (len - j - 1) + 3;
-        if (i >= len || j >= len || state < 1 || state > 4 || i < 0 || j < 0 || rel[y][x].state != -1) {
+        if (i >= len || j >= len || state < 1 || state > 4 || i < 0 || j < 0 || rel[i][j] != -1) {
             Print("INVALID INPUT\nTRY AGAIN\n");
             Sleep(1000);
             Q++;
             continue;
         }
-        rel[y][x].state = state;
+        rel[i][j] = state;
         char tmp = 'E';
         if (state == 2) 
             tmp = 'M';
@@ -175,12 +169,13 @@ int main() {
         printf("\n");
     }
     SetConsoleTextAttribute ( h, wOldColorAttrs);
-    return 0;
-}
-
-void Print(char* str) {
-    for (int i = 0; str[i] != '\0'; i++) {
-        Sleep(10);
-        printf("%c", str[i]);
-    }
+    FILE* fp = fopen("map.bin", "wb");
+    fwrite(&len, sizeof(int), 1, fp);
+    for (int i = 0; i < len; i++) 
+        for (int j = 0; j < len; j++) {
+            if (rel[j][len - i - 1] == -1) 
+                rel[j][len - i - 1] = 4;
+            char tmp = rel[j][len - i - 1] + '0';
+            fwrite(&tmp, sizeof(char), 1, fp);
+        }
 }
