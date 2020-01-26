@@ -1,3 +1,5 @@
+#define ZZ  499349
+
 void Print(char* str) {
     for (int i = 0; str[i] != '\0'; i++) {
         Sleep(10);
@@ -5,14 +7,34 @@ void Print(char* str) {
     }
 }
 
-void RunMapEditor(char table[512][512][3]) {
-    int rel[512][512];
-    for (int i = 0; i < 512; i++)
-        for (int j = 0; j < 512; j++)
-            rel[i][j] = -1;
-    char st[] = "** ", ts[] = "   ";
-    Print("Please enter the length of the table. (It should be smaller than 10 in order to fit in The CMD. )\n");
-    int n = 3, len;  scanf("%d", &len);
+int IJTOXY(int i, int j, int len) {
+    int x = 4 * i + 2, y = 4 * (len - j - 1) + 3;
+    if (i % 2 == 1) 
+        y += 2;
+    return x * ZZ + y;
+}
+
+void PRint(char table[512][512][3], int Z, HANDLE h) {
+    SetConsoleTextAttribute ( h, FOREGROUND_GREEN);
+    for (int i = 0; i < Z; i++) {
+        for (int j = 0; j < Z; j++) 
+            for (int k = 0; k < 3; k++) {
+                char tmp = table[i][j][k];
+                if ((tmp >= '0' && tmp <= '9')) 
+                    SetConsoleTextAttribute ( h, FOREGROUND_RED | FOREGROUND_GREEN);
+                else if (tmp == '*')
+                    SetConsoleTextAttribute ( h, FOREGROUND_GREEN);
+                else 
+                    SetConsoleTextAttribute ( h, FOREGROUND_RED | FOREGROUND_BLUE);
+                printf("%c", tmp);
+            }
+        printf("\n");
+    }
+}
+
+void init(char table[512][512][3], int len) {
+    const char st[] = "** ", ts[] = "   ";
+    int n = 3;
     int Z = 4 * len + 3;
     for (int i  = 0; i < Z; i++) {
         for (int j = 0; j < Z; j++) {
@@ -73,6 +95,18 @@ void RunMapEditor(char table[512][512][3]) {
             table[y][x][2] = '(', table[y][x + 1][0] = j + '0', table[y][x + 1][1] = ',', 
             table[y][x + 1][2] = '0' + len - i - 1, table[y][x + 2][0] = ')';
         }
+}
+
+void RunMapEditor(char table[512][512][3]) {
+    int rel[512][512];
+    for (int i = 0; i < 512; i++)
+        for (int j = 0; j < 512; j++)
+            rel[i][j] = -1;
+    char st[] = "** ", ts[] = "   ";
+    Print("Please enter the length of the table. (It should be smaller than 10 in order to fit in The CMD. )\n");
+    int n = 3, len; scanf("%d", &len);
+    int Z = 4 * len + 3;
+    init(table, len);
     HANDLE h = GetStdHandle ( STD_OUTPUT_HANDLE );
     WORD wOldColorAttrs;
     CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
@@ -82,21 +116,7 @@ void RunMapEditor(char table[512][512][3]) {
     system("cls");
     SetConsoleTextAttribute ( h, FOREGROUND_BLUE);
     Print("Now it's the primary table, I'm waiting for your order's to initialize the table.\n");
-    SetConsoleTextAttribute ( h, FOREGROUND_GREEN);
-    for (int i = 0; i < Z; i++) {
-        for (int j = 0; j < Z; j++) 
-            for (int k = 0; k < n; k++) {
-                char tmp = table[i][j][k];
-                if ((tmp >= '0' && tmp <= '9')) 
-                    SetConsoleTextAttribute ( h, FOREGROUND_RED | FOREGROUND_GREEN);
-                else if (tmp == '*')
-                    SetConsoleTextAttribute ( h, FOREGROUND_GREEN);
-                else 
-                    SetConsoleTextAttribute ( h, FOREGROUND_RED | FOREGROUND_BLUE);
-                printf("%c", tmp);
-            }
-        printf("\n");
-    }
+    PRint(table, Z, h);
     int Q;
     SetConsoleTextAttribute ( h, FOREGROUND_BLUE);
     Print("It's the user manual. First tell me the number of changes you wish for.\n");
@@ -104,21 +124,7 @@ void RunMapEditor(char table[512][512][3]) {
     while (Q--) {
         sleep(.5);
         system("cls");
-        SetConsoleTextAttribute ( h, FOREGROUND_GREEN);
-        for (int i = 0; i < Z; i++) {
-            for (int j = 0; j < Z; j++) 
-                for (int k = 0; k < n; k++) {
-                    char tmp = table[i][j][k];
-                    if ((tmp >= '0' && tmp <= '9')) 
-                        SetConsoleTextAttribute ( h, FOREGROUND_RED | FOREGROUND_GREEN);
-                    else if (tmp == '*')
-                        SetConsoleTextAttribute ( h, FOREGROUND_GREEN);
-                    else 
-                        SetConsoleTextAttribute ( h, FOREGROUND_RED | FOREGROUND_BLUE);
-                    printf("%c", tmp);
-                }
-            printf("\n");
-        }
+        PRint(table, Z, h);
         int i, j;
         SetConsoleTextAttribute ( h, FOREGROUND_BLUE);
         Print("please say the cordinates that you wish to change it's state.(It's format should be like I J)\n");
@@ -129,6 +135,8 @@ void RunMapEditor(char table[512][512][3]) {
         Print("[4] = NORMAL\n");
         int state;  scanf("%d", &state);
         int x = 4 * i + 2, y = 4 * (len - j - 1) + 3;
+        if (i % 2 == 1) 
+            y += 2;
         if (i >= len || j >= len || state < 1 || state > 4 || i < 0 || j < 0 || rel[i][j] != -1) {
             Print("INVALID INPUT\nTRY AGAIN\n");
             Sleep(1000);
@@ -143,31 +151,14 @@ void RunMapEditor(char table[512][512][3]) {
             tmp = 'F';
         else if (state == 4)
             tmp = 'N';
-        if (i % 2 == 1) 
-            y += 2;
         if (tmp == 'E')
-            table[y - 2][x][1] = tmp, table[y - 2][x][2] = '=', table[y - 2][x + 1][0] = '1'
-            , table[y - 2][x + 1][1] = '0', table[y - 2][x + 1][2] = '0';
+            table[y - 2][x][1] = tmp, table[y - 2][x][2] = '=', table[y - 2][x + 1][0] = '1', table[y - 2][x + 1][1] = '0', table[y - 2][x + 1][2] = '0';
         else 
             table[y - 2][x + 1][1] = tmp;
     }
     sleep(.5);
     system("cls");
-    SetConsoleTextAttribute ( h, FOREGROUND_GREEN);
-    for (int i = 0; i < Z; i++) {
-        for (int j = 0; j < Z; j++) 
-            for (int k = 0; k < n; k++) {
-                char tmp = table[i][j][k];
-                if ((tmp >= '0' && tmp <= '9')) 
-                    SetConsoleTextAttribute ( h, FOREGROUND_RED | FOREGROUND_GREEN);
-                else if (tmp == '*')
-                    SetConsoleTextAttribute ( h, FOREGROUND_GREEN);
-                else 
-                    SetConsoleTextAttribute ( h, FOREGROUND_RED | FOREGROUND_BLUE);
-                printf("%c", tmp);
-            }
-        printf("\n");
-    }
+    PRint(table, Z, h);
     SetConsoleTextAttribute ( h, wOldColorAttrs);
     FILE* fp = fopen("map.bin", "wb");
     fwrite(&len, sizeof(int), 1, fp);
