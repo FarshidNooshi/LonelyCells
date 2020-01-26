@@ -5,9 +5,8 @@ void Print(char* str) {
     }
 }
 
-void RunMapEditor() {
+void RunMapEditor(char table[512][512][3]) {
     int rel[512][512];
-    char table[512][512][3];
     for (int i = 0; i < 512; i++)
         for (int j = 0; j < 512; j++)
             rel[i][j] = -1;

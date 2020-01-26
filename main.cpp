@@ -16,10 +16,9 @@ enum blocks {
  NORMAL
 };
 
-
 struct cell {
     char name[6];
-    int x, y;
+    int x, y, sc = 0;
     struct cell* nxt;
 } *lst;
 
@@ -27,12 +26,15 @@ int rel[MAXN][MAXN], remain[MAXN][MAXN];
 int IsSingle, len, Z,  n = 3;
 char table[MAXN][MAXN][3];
 
+void DEL(struct cell* , struct cell* );
+struct cell* get(struct cell*, int);
 void GenerateName(struct cell*);
+void move(struct cell* , int);
 int valid(int, int );
 void init();
 
 int main() {
-    // system("cls");
+    system("cls");
     srand(time(NULL));
     HANDLE h = GetStdHandle ( STD_OUTPUT_HANDLE );
     WORD wOldColorAttrs;
@@ -44,7 +46,7 @@ int main() {
     Print("Lets begin.\nDo you want to use the Map editor or not?\n[1]Yes\n[2]No\n");
     int tmp; scanf("%d", &tmp);
     if (tmp == 1)
-        RunMapEditor();
+        RunMapEditor(table);
     FILE* fr = fopen("map.bin", "rb");
     fread(&len, sizeof(int), 1, fr);
     for (int i = 0; i < len; i++) {
@@ -54,9 +56,8 @@ int main() {
             rel[j][len - i - 1] = tmp2[j] - '0';
     } 
     fclose(fr);
-    init();
     int Z = 4 * len + 3;
-    // system("cls");
+    system("cls");
     Print("Welcome to the game\n");
     printf("[1]Load\n");
     printf("[2]New single player game\n");
@@ -97,7 +98,7 @@ int main() {
             prv = ptr;
             ptr = NULL;
         }
-        // system("cls");
+        system("cls");
         SetConsoleTextAttribute ( h, FOREGROUND_GREEN);
         for (int i = 0; i < Z; i++) {
             for (int j = 0; j < Z; j++) 
@@ -113,101 +114,32 @@ int main() {
                 }
             printf("\n");
         }
-        while (1) {
-            Print("Please choose one of your cells:\n");
-            int counter = 1;
-            for (struct cell* cur = lst; cur->nxt != NULL; cur = cur->nxt)
-                printf("[%d] %s (%d, %d)\n", counter++, cur->name, cur->x, cur->y); 
-            scanf("%d", &tmp);
-            
-        }
     }
 }
 
-void init() {
-    const char st[] = "** ", ts[] = "   ";
-    int Z = 4 * len + 3;
-    for (int i  = 0; i < Z; i++) {
-        for (int j = 0; j < Z; j++) {
-            int w = i % (2 * n - 2), x = j % (4 * n - 4);
-            if ((Z - i <= 2) && (Z - j <= 2 || j <= 2) && len % 2) {
-                for (int k = 0; k < n; k++)    table[i][j][k] = ts[k];
-                continue;
-            } else if (!(len % 2) && ((Z - i <= 2 && j <= 2) || (Z - j <= 2 && i <= 2))) {
-                for (int k = 0; k < n; k++)    table[i][j][k] = ts[k];
-                continue;
-            }
-            if (w < n) {
-                if (w == n - 1) {
-                    if (!j) 
-                        for (int k = 0; k < n; k++)    table[i][j][k] = st[k];
-                    else {
-                        if (j < 3 * n - 3) {
-                        for (int k = 0; k < n; k++)    table[i][j][k] = ts[k];
-                            continue;
-                        }
-                        int y = j - (2 * n - 2);
-                        x = y % (4 * n - 4);
-                        if (x >= n - 1 && x <= 2 * n - 2)
-                            for (int k = 0; k < n; k++)    table[i][j][k] = st[k];
-                        else
-                            for (int k = 0; k < n; k++)    table[i][j][k] = ts[k];
-                    }
-                } else {
-                    if (!w) {
-                        if (x >= n - 1 && x <= 2 * n - 2)
-                            for (int k = 0; k < n; k++)    table[i][j][k] = st[k];
-                        else 
-                            for (int k = 0; k < n; k++)    table[i][j][k] = ts[k];
-                    } else {
-                        if (x == n - 1 - w || x == 2 * n - 2 + w)
-                            for (int k = 0; k < n; k++)    table[i][j][k] = st[k];
-                        else 
-                            for (int k = 0; k < n; k++)    table[i][j][k] = ts[k];
-                    }
-                }
-            } else {
-                int y = w - (n - 1);
-                w = n - 1 - y;
-                if (x == n - 1 - w || x == 2 * n - 2 + w)
-                    for (int k = 0; k < n; k++)    table[i][j][k] = st[k];
-                else 
-                    for (int k = 0; k < n; k++)    table[i][j][k] = ts[k];
-            }
-        }
+void DEL(struct cell** lstt, struct cell* pt) {
+    struct cell* ls = *lstt;
+    if (pt->x == ls->x && pt->y == ls->y) {
+        ls = ls->nxt;
+        return;
     }
-    for (int j = 0; j < len; j++) 
-        for (int i = 0; i < len; i++) {
-            int x = 4 * j + 2, y = 4 * i + 1;
-            if (j % 2 == 0)
-                y += 2;
-            else 
-                y += 4;
-            table[y][x][2] = '(', table[y][x + 1][0] = j + '0', table[y][x + 1][1] = ',', 
-            table[y][x + 1][2] = '0' + len - i - 1, table[y][x + 2][0] = ')';
+    struct cell* cur = ls;
+    for (; cur->nxt != NULL; cur = cur->nxt)
+        if (cur->nxt->x == pt->x && cur->nxt->y == pt->y) {
+            cur->nxt->nxt = pt->nxt;
+            break;
         }
-    for (int i = 0; i < len; i++) 
-        for (int j = 0; j < len; j++) {
-            int x = 4 * i + 2, y = 4 * (len - j - 1) + 3;
-            char tmp = 'E';
-            if (rel[i][j] == 2) 
-                tmp = 'M';
-            else if (rel[i][j] == 3)
-                tmp = 'F';
-            else if (rel[i][j] == 4)
-                tmp = 'N';
-            if (i % 2 == 1) 
-                y += 2;
-            if (tmp == 'E')
-                table[y - 2][x][1] = tmp, table[y - 2][x][2] = '=', table[y - 2][x + 1][0] = '1'
-                , table[y - 2][x + 1][1] = '0', table[y - 2][x + 1][2] = '0';
-            else 
-                table[y - 2][x + 1][1] = tmp;
-    }
+}
+
+struct cell* get(struct cell* ls, int nm) {
+    struct cell* ptr = ls;
+    while (--nm)
+        ptr = ptr->nxt;
+    return ptr;
 }
 
 int valid(int x, int y) {
-    if (rel[x][y] == FORBIDDEN)
+    if (x < 0 || x > len || y < 0 || y > len || rel[x][y] == FORBIDDEN)
         return 0;
     struct cell* ptr = lst;
     while (ptr->nxt != NULL) {
