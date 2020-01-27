@@ -9,6 +9,10 @@ struct cell {
 #define DEBUG
 #endif
 
+void init(char table[512][512][3], int len);
+void initname(int x, int y, char* name, int len, char table[512][512][3]);
+int AddToTable(int i, int j, int state, int sc, int len, char table[512][512][3]);
+
 cell* NEW() {
     cell* ret = (cell*)malloc(sizeof(cell));
     ret->nxt = NULL;
@@ -45,6 +49,18 @@ void add(int num, cell* temp) {
     lst[num] = temp;
 }
 
+void AddEnd(int num, cell* temp) {
+    if (lst[num] == NULL) {
+        lst[num] = temp;
+        lst[num]->nxt = NULL;
+    } else {
+        cell* cur;
+        for (cur = lst[num]; cur->nxt != NULL; cur = cur->nxt);
+        cur->nxt = temp;
+        temp->nxt = NULL;
+    }
+}
+
 void GenerateName(struct cell* mem) {
     const char ch[] = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM";
     int mm = 5;
@@ -74,4 +90,69 @@ int valid(int x, int y, int len, int rel[512][512], int num) {
         ptr = ptr->nxt;
     }
     return 1;
+}
+
+
+int LoadRead(int rel[512][512], int remain[512][512], char table[512][512][3]) {
+    FILE* fs = fopen("save.bin", "rb");
+    int typ;    fread(&typ, sizeof(int), 1, fs);
+    int len;
+    fread(&len, sizeof(int), 1, fs);
+    for (int i = 0; i < len; i++) 
+        for (int j = 0; j < len; j++) 
+            fread(&rel[j][len - i - 1], sizeof(int), 1, fs);
+    for (int i = 0; i < len; i++) 
+        for (int j = 0; j < len; j++)
+            fread(&remain[j][len - i - 1], sizeof(int), 1, fs);
+    if (typ) {
+        
+    } else {
+        int num;
+        fread(&num, sizeof(int), 1, fs);
+        printf("%d", num);
+        for (int i = 0; i < num; i++) {
+            cell* mem = NEW();
+            fread(mem->name, sizeof(char) * 6, 6, fs);
+            fread(&mem->x, sizeof(int), 1, fs);
+            fread(&mem->y, sizeof(int), 1, fs);
+            fread(&mem->sc, sizeof(int), 1, fs);
+            AddEnd(0, mem);
+            initname(mem->x, mem->y, mem->name, len, table);
+        }
+    }
+    fclose(fs);
+    init(table, len);
+    for (int i = 0; i < len; i++)
+        for (int j = 0; j < len; j++) 
+            AddToTable(i, j, rel[i][j], remain[i][j], len, table);
+    for (cell* cur = lst[0]; cur; cur = cur->nxt)
+        initname(cur->x, cur->y, cur->name, len, table);
+    if (typ) {
+
+    }
+    return len * 2 + typ;
+}
+
+void SavePrint1(int len, int rel[512][512], int remain[512][512]) {
+    FILE* fs = fopen("save.bin", "wb");
+    int tmp = 0;
+    fwrite(&tmp, sizeof(int), 1, fs);
+    fwrite(&len, sizeof(int), 1, fs);
+    for (int i = 0; i < len; i++) 
+        for (int j = 0; j < len; j++) 
+            fwrite(&rel[j][len - i - 1], sizeof(int), 1, fs);
+    for (int i = 0; i < len; i++) 
+        for (int j = 0; j < len; j++)
+            fwrite(&remain[j][len - i - 1], sizeof(int), 1, fs);
+    int cnt = 0;
+    cell* pnt = lst[0];
+    while (pnt)    pnt = pnt->nxt, cnt++;
+    fwrite(&cnt, sizeof(int), 1, fs);
+    for (pnt = lst[0]; pnt; pnt = pnt->nxt) {
+        fwrite(pnt->name, sizeof(char) * 6, 6, fs);
+        fwrite(&pnt->x, sizeof(int), 1, fs);
+        fwrite(&pnt->y, sizeof(int), 1, fs);
+        fwrite(&pnt->sc, sizeof(int), 1, fs);
+    }
+    fclose(fs);
 }

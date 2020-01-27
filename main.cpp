@@ -22,7 +22,7 @@ struct cell {
 #endif
 
 int rel[MAXN][MAXN], remain[MAXN][MAXN], len;
-int IsSingle, Z,  n = 3;
+int Z,  n = 3;
 char table[MAXN][MAXN][3];
 
 void _();
@@ -46,7 +46,11 @@ int main() {
     init(table, len);
     for (int i = 0; i < len; i++)
         for (int j = 0; j < len; j++)
-            AddToTable(i, j, rel[i][j], len, table);
+            AddToTable(i, j, rel[i][j], 100, len, table);
+    for (int i = 0; i < len; i++)
+        for (int j = 0; j < len; j++)
+            if (rel[i][j] == ENERGY)
+                remain[i][j] = 100;
     system("cls");
     PRint(table, Z, h, wOldColorAttrs);
     Print("Welcome to the game\n");
@@ -56,8 +60,19 @@ int main() {
     printf("[4]Exit\n");
     scanf("%d", &tmp);
     if (tmp == 2)
-        start(table, &lst[0], len, rel, h, wOldColorAttrs);
-
+        start(table, &lst[0], len, rel, remain, h, wOldColorAttrs, 1);
+    else if (tmp == 4) 
+        return 0;
+    else if (tmp == 1) {
+        len = LoadRead(rel, remain, table);
+        if (len % 2) {
+            len /= 2;
+        } else {
+            len /= 2;
+            start(table, &lst[0], len, rel, remain, h, wOldColorAttrs, 0);
+        }
+    }
+    return 0;
 }
 
 void _() {

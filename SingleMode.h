@@ -48,7 +48,7 @@ void split(int col, int num, char table[512][512][3], cell** lstt, int len, int 
     for (int i = 1; i < 6; i++) 
         if (valid(getdir(i, x, y) / ZZ, getdir(i, x, y) % ZZ, len, rel, 0))
             can = 1;
-    if (rel[x][y] != MITOSIS || /*point->sc < 80 || */!can) {
+    if (rel[x][y] != MITOSIS || point->sc < 80 || !can) {
         Print("INVALID INPUT\nTRY AGAIN\n");
         sleep(2);
         return ;
@@ -71,7 +71,7 @@ void split(int col, int num, char table[512][512][3], cell** lstt, int len, int 
     initname(nem->x, nem->y, nem->name, len, table);
 }
 
-void TakeTurn(int col, int num, char table[512][512][3], cell** lstt, int len, int rel[512][512], HANDLE h, WORD wOldColorAttrs) {
+void TakeTurn(int col, int num, char table[512][512][3], cell** lstt, int len, int rel[512][512], int remain[512][512], HANDLE h, WORD wOldColorAttrs) {
     cell* lst = *lstt;
     cell* point = get(0, num);
     SetConsoleTextAttribute ( h, FOREGROUND_BLUE);
@@ -100,32 +100,52 @@ void TakeTurn(int col, int num, char table[512][512][3], cell** lstt, int len, i
     } else if (typ == 2) 
         split(col, num, table, lstt, len, rel, h, wOldColorAttrs);
     else if (typ == 3) {
-        
-    }
+        int x = point->x, y = point->y;
+        if (rel[x][y] == ENERGY) {
+            if (remain[x][y] < 15)
+                point->sc += remain[x][y], remain[x][y] = 0;
+            else 
+                point->sc += 15, remain[x][y] -= 15;
+                int i = x, j = y;
+                x = IJTOXY(i, j, len);
+                y = x % ZZ, x = x / ZZ;
+                if (remain[i][j] < 10)
+                    table[y - 2][x + 1][0] = remain[i][j] + '0', table[y - 2][x + 1][1] = ' ';
+                else 
+                    table[y - 2][x + 1][0] = remain[i][j] / 10 + '0', table[y - 2][x + 1][1] = remain[i][j] % 10 + '0', table[y - 2][x + 1][2] = ' ';
+        } else {
+            Print("INVALID INPUT\nTRY AGAIN\n");
+            sleep(2);
+        }
+    } else  // 0, len, Z, table, rel, remain, cell 
+        SavePrint1(len, rel, remain);
     SetConsoleTextAttribute ( h, wOldColorAttrs); 
 }
 
-void start(char table[512][512][3], cell** lstt, int len, int rel[512][512], HANDLE h, WORD wOldColorAttrs) {
+void start(char table[512][512][3], cell** lstt, int len, int rel[512][512], int remain[512][512], HANDLE h, WORD wOldColorAttrs, int typ) {
     cell* lst = *lstt;
-    SetConsoleTextAttribute ( h, FOREGROUND_BLUE);
-    Print("Please enter your preferred number of cells\n");
     int Z = 4 * len + 3;
-    int n1; scanf("%d", &n1);
-	for (int i = 0; i < n1; i++) {
-		cell* mem = NEW();
-		GenerateName(mem);
-		add(0, mem);
-		int x = rand() % len, y = rand() % len;
-		while (!valid(x, y, len, rel, 0))
-			x = rand() % len, y = rand() % len;
-		mem->x = x, mem->y = y;
-        initname(mem->x, mem->y, mem->name, len, table);
+    if (typ) {
+        SetConsoleTextAttribute ( h, FOREGROUND_BLUE);
+        Print("Please enter your preferred number of cells\n");
+        int n1; scanf("%d", &n1);
+        for (int i = 0; i < n1; i++) {
+            cell* mem = NEW();
+            GenerateName(mem);
+            add(0, mem);
+            int x = rand() % len, y = rand() % len;
+            while (!valid(x, y, len, rel, 0))
+                x = rand() % len, y = rand() % len;
+            mem->x = x, mem->y = y;
+            initname(mem->x, mem->y, mem->name, len, table);
+        }
     }
     while (true) {
         system("cls");
         PRint(table, Z, h, wOldColorAttrs);
         printcells(0, 0, h, wOldColorAttrs);
+        SetConsoleTextAttribute ( h, FOREGROUND_BLUE);
         int num;    scanf("%d", &num);
-        TakeTurn(0, --num, table, &lst, len, rel, h, wOldColorAttrs);
+        TakeTurn(0, --num, table, &lst, len, rel, remain, h, wOldColorAttrs);
     }
 }

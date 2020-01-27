@@ -99,23 +99,26 @@ void init(char table[512][512][3], int len) {
         }
 }
 
-int AddToTable(int i, int j, int state, int len, char table[512][512][3]) {
-    int x = 4 * i + 2, y = 4 * (len - j - 1) + 3;
-    if (i % 2 == 1) 
-        y += 2;
+int AddToTable(int i, int j, int state, int sc, int len, char table[512][512][3]) {
+    int x = IJTOXY(i, j, len), y;
+    y = x % ZZ, x = x / ZZ;
     if (i >= len || j >= len || state < 1 || state > 4 || i < 0 || j < 0) 
         return 0;
     char tmp = 'E';
-    if (state == 2) 
-        tmp = 'M';
-    else if (state == 3)
-        tmp = 'F';
-    else if (state == 4)
-        tmp = 'N';
-    if (tmp == 'E')
-        table[y - 2][x][1] = tmp, table[y - 2][x][2] = '=', table[y - 2][x + 1][0] = '1', table[y - 2][x + 1][1] = '0', table[y - 2][x + 1][2] = '0';
+    if (state == 2)     tmp = 'M';
+    else if (state == 3)    tmp = 'F';
+    else if (state == 4)    tmp = 'N';
+    table[y - 2][x + 1][1] = tmp;
+    if (tmp != 'E')
+        return 1;
+    table[y - 2][x][1] = tmp;
+    table[y - 2][x][2] = '=';
+    if (sc < 10)
+        table[y - 2][x + 1][0] = sc + '0', table[y - 2][x + 1][1] = ' ', table[y - 2][x + 1][2] = ' ';
+    else if (sc < 100)
+        table[y - 2][x + 1][0] = sc / 10 + '0', table[y - 2][x + 1][1] = sc % 10 + '0', table[y - 2][x + 1][2] = ' ';
     else 
-        table[y - 2][x + 1][1] = tmp;
+        table[y - 2][x + 1][0] = '1', table[y - 2][x + 1][1] = '0', table[y - 2][x + 1][2] = '0';
     return 1;
 }
 
@@ -152,7 +155,7 @@ void RunMapEditor(char table[512][512][3], WORD wOldColorAttrs) {
         Print("[3] = FORBIDDEN\n");
         Print("[4] = NORMAL\n");
         int state;  scanf("%d", &state);
-        if (!AddToTable(i, j, state, len, table) || rel[i][j] != -1) {   
+        if (!AddToTable(i, j, state, 100, len, table) || rel[i][j] != -1) {   
             Q++;
             Print("Invalid input\nTry again\n");
             sleep(2);
