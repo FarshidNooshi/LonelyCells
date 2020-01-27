@@ -25,7 +25,7 @@ void move(int col, int num, char table[512][512][3], cell** lstt, int len, int r
 
 int getdir(int dir, int x, int y) {
     if (dir == 1)
-            y++;
+        y++;
     else if (dir == 2)
         y--;
     else if (dir == 3) 
