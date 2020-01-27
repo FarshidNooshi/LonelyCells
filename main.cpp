@@ -21,8 +21,6 @@ struct cell {
 #define DEBUG
 #endif
 
-enum blocks { ENERGY = 1, MITOSIS, FORBIDDEN, NORMAL};
-
 int rel[MAXN][MAXN], remain[MAXN][MAXN], len;
 int IsSingle, Z,  n = 3;
 char table[MAXN][MAXN][3];
@@ -44,9 +42,13 @@ int main() {
     if (tmp == 1)
         RunMapEditor(table, wOldColorAttrs);
     _();
-    init(table, len);
     Z = 4 * len + 3;
+    init(table, len);
+    for (int i = 0; i < len; i++)
+        for (int j = 0; j < len; j++)
+            AddToTable(i, j, rel[i][j], len, table);
     system("cls");
+    PRint(table, Z, h, wOldColorAttrs);
     Print("Welcome to the game\n");
     printf("[1]Load\n");
     printf("[2]New single player game\n");
@@ -54,7 +56,7 @@ int main() {
     printf("[4]Exit\n");
     scanf("%d", &tmp);
     if (tmp == 2)
-        start(table, &lst, len, rel, h, wOldColorAttrs);
+        start(table, &lst[0], len, rel, h, wOldColorAttrs);
 
 }
 

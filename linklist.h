@@ -5,7 +5,7 @@ struct cell {
     char name[6];
     int x = -1, y = -1, sc = 0;
     cell* nxt;
-} *lst;
+} *lst[2];
 #define DEBUG
 #endif
 
@@ -16,35 +16,33 @@ cell* NEW() {
     return ret;
 }
 
-int find(cell** lstt, cell x) {
-    cell* lst = *lstt;
+int find(int num, cell x) {
     int i = 0;
-    for (cell* cur = lst; cur != NULL; cur = cur->nxt, i++)
+    for (cell* cur = lst[num]; cur != NULL; cur = cur->nxt, i++)
         if (cur->x == x.x && cur->y == x.y)
             return i;
 }
 
-cell* get(cell* lst, int t) {
+cell* get(int num, int t) {
     cell* ptr;
-    for (ptr = lst; t && ptr != NULL; t--, ptr = ptr->nxt);
+    for (ptr = lst[num]; t && ptr != NULL; t--, ptr = ptr->nxt);
     return ptr;
 }
 
-void del(cell** lstt, cell x) {
-    cell* lst = *lstt;
-    int id = find(&lst, x);
+void del(int num, cell* x) {
+    int id = find(num, *x);
     if (id == 0) {
-        lst = lst->nxt;
+        lst[num] = lst[num]->nxt;
         return ;
     }
-    cell* prev = get(lst, id - 1);
-    cell* cur = get(lst, id);
+    cell* prev = get(num, id - 1);
+    cell* cur = get(num, id);
     prev->nxt = cur->nxt;
 }
 
-void add(cell** lstt, cell* temp) {
-    temp->nxt = *lstt;
-    *lstt = temp;
+void add(int num, cell* temp) {
+    temp->nxt = lst[num];
+    lst[num] = temp;
 }
 
 void GenerateName(struct cell* mem) {
@@ -53,4 +51,27 @@ void GenerateName(struct cell* mem) {
     for (int i = 0; i < mm; i++) 
         mem->name[i] = ch[rand() % (sizeof(ch) / sizeof(char) - 1)];
     mem->name[5] = '\0';
+}
+
+void printcells(int num, int col, HANDLE h, WORD wOldColorAttrs) {
+    if (col)
+        SetConsoleTextAttribute ( h, FOREGROUND_RED);
+    else 
+        SetConsoleTextAttribute ( h, FOREGROUND_BLUE);
+    int counter = 1;
+    for (cell* cur = lst[num]; cur != NULL; cur = cur->nxt, counter++)
+        printf("[%d] %s (%d, %d)\n", counter, cur->name, cur->x, cur->y);
+    SetConsoleTextAttribute ( h, wOldColorAttrs); 
+}
+
+int valid(int x, int y, int len, int rel[512][512], int num) {
+    if (x < 0 || x >= len || y < 0 || y >= len || rel[x][y] == 3)
+        return 0;
+    struct cell* ptr = lst[num];
+    while (ptr != NULL) {
+        if (ptr->x == x && ptr->y == y)
+            return 0;
+        ptr = ptr->nxt;
+    }
+    return 1;
 }

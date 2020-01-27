@@ -95,8 +95,28 @@ void init(char table[512][512][3], int len) {
                 y += 4;
             table[y][x][2] = '(', table[y][x + 1][0] = j + '0', table[y][x + 1][1] = ',', 
             table[y][x + 1][2] = '0' + len - i - 1, table[y][x + 2][0] = ')';
-            table[y - 2][x + 1][0] = 'N';
+            table[y - 2][x + 1][1] = 'N';
         }
+}
+
+int AddToTable(int i, int j, int state, int len, char table[512][512][3]) {
+    int x = 4 * i + 2, y = 4 * (len - j - 1) + 3;
+    if (i % 2 == 1) 
+        y += 2;
+    if (i >= len || j >= len || state < 1 || state > 4 || i < 0 || j < 0) 
+        return 0;
+    char tmp = 'E';
+    if (state == 2) 
+        tmp = 'M';
+    else if (state == 3)
+        tmp = 'F';
+    else if (state == 4)
+        tmp = 'N';
+    if (tmp == 'E')
+        table[y - 2][x][1] = tmp, table[y - 2][x][2] = '=', table[y - 2][x + 1][0] = '1', table[y - 2][x + 1][1] = '0', table[y - 2][x + 1][2] = '0';
+    else 
+        table[y - 2][x + 1][1] = tmp;
+    return 1;
 }
 
 void RunMapEditor(char table[512][512][3], WORD wOldColorAttrs) {
@@ -132,31 +152,17 @@ void RunMapEditor(char table[512][512][3], WORD wOldColorAttrs) {
         Print("[3] = FORBIDDEN\n");
         Print("[4] = NORMAL\n");
         int state;  scanf("%d", &state);
-        int x = 4 * i + 2, y = 4 * (len - j - 1) + 3;
-        if (i % 2 == 1) 
-            y += 2;
-        if (i >= len || j >= len || state < 1 || state > 4 || i < 0 || j < 0 || rel[i][j] != -1) {
-            Print("INVALID INPUT\nTRY AGAIN\n");
-            Sleep(1000);
+        if (!AddToTable(i, j, state, len, table) || rel[i][j] != -1) {   
             Q++;
-            continue;
+            Print("Invalid input\nTry again\n");
+            sleep(2);
         }
         rel[i][j] = state;
-        char tmp = 'E';
-        if (state == 2) 
-            tmp = 'M';
-        else if (state == 3)
-            tmp = 'F';
-        else if (state == 4)
-            tmp = 'N';
-        if (tmp == 'E')
-            table[y - 2][x][1] = tmp, table[y - 2][x][2] = '=', table[y - 2][x + 1][0] = '1', table[y - 2][x + 1][1] = '0', table[y - 2][x + 1][2] = '0';
-        else 
-            table[y - 2][x + 1][1] = tmp;
     }
     sleep(.5);
     system("cls");
     PRint(table, Z, h, wOldColorAttrs);
+    sleep(.5);
     FILE* fp = fopen("map.bin", "wb");
     fwrite(&len, sizeof(int), 1, fp);
     for (int i = 0; i < len; i++) 
