@@ -14,7 +14,7 @@ int IJTOXY(int i, int j, int len) {
     return x * ZZ + y;
 }
 
-void PRint(char table[512][512][3], int Z, HANDLE h) {
+void PRint(char table[512][512][3], int Z, HANDLE h, WORD wOldColorAttrs) {
     SetConsoleTextAttribute ( h, FOREGROUND_GREEN);
     for (int i = 0; i < Z; i++) {
         for (int j = 0; j < Z; j++) 
@@ -30,6 +30,7 @@ void PRint(char table[512][512][3], int Z, HANDLE h) {
             }
         printf("\n");
     }
+    SetConsoleTextAttribute ( h, wOldColorAttrs);
 }
 
 void init(char table[512][512][3], int len) {
@@ -94,10 +95,11 @@ void init(char table[512][512][3], int len) {
                 y += 4;
             table[y][x][2] = '(', table[y][x + 1][0] = j + '0', table[y][x + 1][1] = ',', 
             table[y][x + 1][2] = '0' + len - i - 1, table[y][x + 2][0] = ')';
+            table[y - 2][x + 1][0] = 'N';
         }
 }
 
-void RunMapEditor(char table[512][512][3]) {
+void RunMapEditor(char table[512][512][3], WORD wOldColorAttrs) {
     int rel[512][512];
     for (int i = 0; i < 512; i++)
         for (int j = 0; j < 512; j++)
@@ -108,15 +110,11 @@ void RunMapEditor(char table[512][512][3]) {
     int Z = 4 * len + 3;
     init(table, len);
     HANDLE h = GetStdHandle ( STD_OUTPUT_HANDLE );
-    WORD wOldColorAttrs;
-    CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
-    GetConsoleScreenBufferInfo(h, &csbiInfo);
-    wOldColorAttrs = csbiInfo.wAttributes; 
     sleep(.5);
     system("cls");
     SetConsoleTextAttribute ( h, FOREGROUND_BLUE);
     Print("Now it's the primary table, I'm waiting for your order's to initialize the table.\n");
-    PRint(table, Z, h);
+    PRint(table, Z, h, wOldColorAttrs);
     int Q;
     SetConsoleTextAttribute ( h, FOREGROUND_BLUE);
     Print("It's the user manual. First tell me the number of changes you wish for.\n");
@@ -124,7 +122,7 @@ void RunMapEditor(char table[512][512][3]) {
     while (Q--) {
         sleep(.5);
         system("cls");
-        PRint(table, Z, h);
+        PRint(table, Z, h, wOldColorAttrs);
         int i, j;
         SetConsoleTextAttribute ( h, FOREGROUND_BLUE);
         Print("please say the cordinates that you wish to change it's state.(It's format should be like I J)\n");
@@ -158,8 +156,7 @@ void RunMapEditor(char table[512][512][3]) {
     }
     sleep(.5);
     system("cls");
-    PRint(table, Z, h);
-    SetConsoleTextAttribute ( h, wOldColorAttrs);
+    PRint(table, Z, h, wOldColorAttrs);
     FILE* fp = fopen("map.bin", "wb");
     fwrite(&len, sizeof(int), 1, fp);
     for (int i = 0; i < len; i++) 

@@ -1,3 +1,4 @@
+#include<stdlib.h>
 #ifndef DEBUG
 typedef struct cell cell;
 struct cell {
@@ -11,10 +12,12 @@ struct cell {
 cell* NEW() {
     cell* ret = (cell*)malloc(sizeof(cell));
     ret->nxt = NULL;
+    ret->x = -1, ret->y = -1, ret->sc = 0;
     return ret;
 }
 
-int find(cell* lst, cell x) {
+int find(cell** lstt, cell x) {
+    cell* lst = *lstt;
     int i = 0;
     for (cell* cur = lst; cur != NULL; cur = cur->nxt, i++)
         if (cur->x == x.x && cur->y == x.y)
@@ -22,14 +25,14 @@ int find(cell* lst, cell x) {
 }
 
 cell* get(cell* lst, int t) {
-    cell* ptr = lst;
-    while (t--)
-        ptr = ptr->nxt;
+    cell* ptr;
+    for (ptr = lst; t && ptr != NULL; t--, ptr = ptr->nxt);
     return ptr;
 }
 
-void del(cell* lst, cell x) {
-    int id = find(lst, x);
+void del(cell** lstt, cell x) {
+    cell* lst = *lstt;
+    int id = find(&lst, x);
     if (id == 0) {
         lst = lst->nxt;
         return ;
@@ -39,9 +42,15 @@ void del(cell* lst, cell x) {
     prev->nxt = cur->nxt;
 }
 
-void add(cell* lst, cell temp) {
-    cell* cur;
-    for (cur = lst; cur->nxt != NULL; cur = cur->nxt);
-    cur->nxt = &temp;
-    temp.nxt = NULL;
+void add(cell** lstt, cell* temp) {
+    temp->nxt = *lstt;
+    *lstt = temp;
+}
+
+void GenerateName(struct cell* mem) {
+    const char ch[] = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM";
+    int mm = 5;
+    for (int i = 0; i < mm; i++) 
+        mem->name[i] = ch[rand() % (sizeof(ch) / sizeof(char) - 1)];
+    mem->name[5] = '\0';
 }
