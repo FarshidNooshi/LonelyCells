@@ -7,6 +7,7 @@
 #include<Windows.h>
 #include"linklist.h"
 #include"MapEditor.h"
+#include"MultiMode.h"
 #include"SingleMode.h"
 
 #define MAXN  512
@@ -22,7 +23,7 @@ struct cell {
 #endif
 
 int rel[MAXN][MAXN], remain[MAXN][MAXN], len;
-int Z,  n = 3;
+int Z,  n = 3, turn;
 char table[MAXN][MAXN][3];
 
 void _();
@@ -60,18 +61,21 @@ int main() {
     printf("[4]Exit\n");
     scanf("%d", &tmp);
     if (tmp == 2)
-        start(table, &lst[0], len, rel, remain, h, wOldColorAttrs, 1);
+        start(table, len, rel, remain, h, wOldColorAttrs, 1, 0);
     else if (tmp == 4) 
         return 0;
     else if (tmp == 1) {
         len = LoadRead(rel, remain, table);
+        turn = len % ZZ, len = len / ZZ;
         if (len % 2) {
             len /= 2;
+            start2(table, len, rel, remain, h, wOldColorAttrs, 0, turn, 1);
         } else {
             len /= 2;
-            start(table, &lst[0], len, rel, remain, h, wOldColorAttrs, 0);
+            start(table, len, rel, remain, h, wOldColorAttrs, 0, 0);
         }
-    }
+    } else 
+        start2(table, len, rel, remain, h, wOldColorAttrs, 1, 0, 1);
     return 0;
 }
 

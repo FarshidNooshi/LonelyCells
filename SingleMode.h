@@ -1,4 +1,3 @@
-#define ZZ  499349
 
 enum blocks { ENERGY = 1, MITOSIS, FORBIDDEN, NORMAL};
 
@@ -10,13 +9,12 @@ void initname(int x, int y, char* name, int len, char table[512][512][3]) {
     table[y - 1][x + 2][0] = name[4];
 }
 
-void move(int col, int num, char table[512][512][3], cell** lstt, int len, int rel[512][512], HANDLE h, WORD wOldColorAttrs, int x, int y) {
-    if (!valid(x, y, len, rel, 0)) {
+void move(int col, int num, char table[512][512][3], int len, int rel[512][512], HANDLE h, WORD wOldColorAttrs, int x, int y) {
+    if (!valid(x, y, len, rel)) {
         Print("INVALID INPUT\nTRY AGAIN\n");
         Sleep(1000);
         return ;
     }
-    cell* lst = *lstt;
     cell* point = get(0, num);
     initname(point->x, point->y, "     ", len, table);
     initname(x, y, point->name, len, table);
@@ -39,14 +37,13 @@ int getdir(int dir, int x, int y) {
     return x * ZZ + y;
 }
 
-void split(int col, int num, char table[512][512][3], cell** lstt, int len, int rel[512][512], HANDLE h, WORD wOldColorAttrs) {
-    cell* lst = *lstt;
+void split(int col, int num, char table[512][512][3], int len, int rel[512][512], HANDLE h, WORD wOldColorAttrs) {
     cell* point = get(0, num);
     int x = point->x;
     int y = point->y;
     int can = 0;
     for (int i = 1; i < 6; i++) 
-        if (valid(getdir(i, x, y) / ZZ, getdir(i, x, y) % ZZ, len, rel, 0))
+        if (valid(getdir(i, x, y) / ZZ, getdir(i, x, y) % ZZ, len, rel))
             can = 1;
     if (rel[x][y] != MITOSIS || point->sc < 80 || !can) {
         Print("INVALID INPUT\nTRY AGAIN\n");
@@ -61,7 +58,7 @@ void split(int col, int num, char table[512][512][3], cell** lstt, int len, int 
     add(0, mem);
     initname(mem->x, mem->y, mem->name, len, table);
     int dir = rand() % 6 + 1;
-    while (!valid(getdir(dir, x, y) / ZZ, getdir(dir, x, y) % ZZ, len, rel, 0))
+    while (!valid(getdir(dir, x, y) / ZZ, getdir(dir, x, y) % ZZ, len, rel))
         dir = rand() % 6 + 1;
     cell* nem = NEW();
     GenerateName(nem);
@@ -71,9 +68,14 @@ void split(int col, int num, char table[512][512][3], cell** lstt, int len, int 
     initname(nem->x, nem->y, nem->name, len, table);
 }
 
-void TakeTurn(int col, int num, char table[512][512][3], cell** lstt, int len, int rel[512][512], int remain[512][512], HANDLE h, WORD wOldColorAttrs) {
-    cell* lst = *lstt;
-    cell* point = get(0, num);
+void TakeTurn(int col, int num, char table[512][512][3], int len, int rel[512][512], int remain[512][512], HANDLE h, WORD wOldColorAttrs, int is, int turn) {
+    cell* point = get(col, num);
+    if (point == NULL) {
+        Print("INVALID INPUT\nTRY AGAIN\n");
+        sleep(2);
+        SetConsoleTextAttribute ( h, wOldColorAttrs); 
+        return ;
+    }
     SetConsoleTextAttribute ( h, FOREGROUND_BLUE);
     Print("[1]Move\n");
     Print("[2]Split a cell\n");
@@ -96,9 +98,9 @@ void TakeTurn(int col, int num, char table[512][512][3], cell** lstt, int len, i
         int x = point->x, y = point->y;
         x = getdir(dir, x, y);
         y = x % ZZ, x = x / ZZ;
-        move(col, num, table, lstt, len, rel, h, wOldColorAttrs, x, y);
+        move(col, num, table, len, rel, h, wOldColorAttrs, x, y);
     } else if (typ == 2) 
-        split(col, num, table, lstt, len, rel, h, wOldColorAttrs);
+        split(col, num, table, len, rel, h, wOldColorAttrs);
     else if (typ == 3) {
         int x = point->x, y = point->y;
         if (rel[x][y] == ENERGY) {
@@ -117,13 +119,16 @@ void TakeTurn(int col, int num, char table[512][512][3], cell** lstt, int len, i
             Print("INVALID INPUT\nTRY AGAIN\n");
             sleep(2);
         }
-    } else  // 0, len, Z, table, rel, remain, cell 
-        SavePrint1(len, rel, remain);
+    } else {  // 0, len, Z, table, rel, remain, cell 
+        if (!is)
+            SavePrint1(len, rel, remain);
+        else 
+            SavePrint2(len, rel, remain, turn);
+    }
     SetConsoleTextAttribute ( h, wOldColorAttrs); 
 }
 
-void start(char table[512][512][3], cell** lstt, int len, int rel[512][512], int remain[512][512], HANDLE h, WORD wOldColorAttrs, int typ) {
-    cell* lst = *lstt;
+void start(char table[512][512][3], int len, int rel[512][512], int remain[512][512], HANDLE h, WORD wOldColorAttrs, int typ, int is) {
     int Z = 4 * len + 3;
     if (typ) {
         SetConsoleTextAttribute ( h, FOREGROUND_BLUE);
@@ -134,7 +139,7 @@ void start(char table[512][512][3], cell** lstt, int len, int rel[512][512], int
             GenerateName(mem);
             add(0, mem);
             int x = rand() % len, y = rand() % len;
-            while (!valid(x, y, len, rel, 0))
+            while (!valid(x, y, len, rel))
                 x = rand() % len, y = rand() % len;
             mem->x = x, mem->y = y;
             initname(mem->x, mem->y, mem->name, len, table);
@@ -146,6 +151,6 @@ void start(char table[512][512][3], cell** lstt, int len, int rel[512][512], int
         printcells(0, 0, h, wOldColorAttrs);
         SetConsoleTextAttribute ( h, FOREGROUND_BLUE);
         int num;    scanf("%d", &num);
-        TakeTurn(0, --num, table, &lst, len, rel, remain, h, wOldColorAttrs);
+        TakeTurn(0, --num, table, len, rel, remain, h, wOldColorAttrs, is, 0);
     }
 }
