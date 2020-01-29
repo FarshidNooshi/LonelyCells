@@ -112,7 +112,7 @@ int LoadRead(int rel[512][512], int remain[512][512], char table[512][512][3]) {
         int num;
         for (int p = 0; p < 2; p++) {
             fread(&num, sizeof(int), 1, fs);
-            printf("%d", num);
+            printf("%d %d\n", p, num);
             for (int i = 0; i < num; i++) {
                 cell* mem = NEW();
                 fread(mem->name, sizeof(char) * 6, 6, fs);
@@ -126,7 +126,6 @@ int LoadRead(int rel[512][512], int remain[512][512], char table[512][512][3]) {
     } else {
         int num;
         fread(&num, sizeof(int), 1, fs);
-        printf("%d", num);
         for (int i = 0; i < num; i++) {
             cell* mem = NEW();
             fread(mem->name, sizeof(char) * 6, 6, fs);
@@ -145,8 +144,8 @@ int LoadRead(int rel[512][512], int remain[512][512], char table[512][512][3]) {
     for (cell* cur = lst[0]; cur; cur = cur->nxt)
         initname(cur->x, cur->y, cur->name, len, table);
     if (typ) {
-    for (cell* cur = lst[1]; cur; cur = cur->nxt)
-        initname(cur->x, cur->y, cur->name, len, table);
+        for (cell* cur = lst[1]; cur; cur = cur->nxt)
+            initname(cur->x, cur->y, cur->name, len, table);
     }
     return (len * 2 + typ) * ZZ + turn;
 }
@@ -187,12 +186,12 @@ void SavePrint2(int len, int rel[512][512], int remain[512][512], int turn) {
         for (int j = 0; j < len; j++)
             fwrite(&remain[j][len - i - 1], sizeof(int), 1, fs);
     fwrite(&turn, sizeof(int), 1, fs);
-    int cnt = 0;
     for (int p = 0; p < 2; p++) {
-        cell* pnt = lst[0];
+        int cnt = 0;
+        cell* pnt = lst[p];
         while (pnt)    pnt = pnt->nxt, cnt++;
         fwrite(&cnt, sizeof(int), 1, fs);
-        for (pnt = lst[0]; pnt; pnt = pnt->nxt) {
+        for (pnt = lst[p]; pnt; pnt = pnt->nxt) {
             fwrite(pnt->name, sizeof(char) * 6, 6, fs);
             fwrite(&pnt->x, sizeof(int), 1, fs);
             fwrite(&pnt->y, sizeof(int), 1, fs);

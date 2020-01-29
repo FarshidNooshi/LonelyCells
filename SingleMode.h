@@ -9,16 +9,17 @@ void initname(int x, int y, char* name, int len, char table[512][512][3]) {
     table[y - 1][x + 2][0] = name[4];
 }
 
-void move(int col, int num, char table[512][512][3], int len, int rel[512][512], HANDLE h, WORD wOldColorAttrs, int x, int y) {
+int move(int col, int num, char table[512][512][3], int len, int rel[512][512], HANDLE h, WORD wOldColorAttrs, int x, int y) {
     if (!valid(x, y, len, rel)) {
         Print("INVALID INPUT\nTRY AGAIN\n");
-        Sleep(1000);
-        return ;
+        sleep(2);
+        return 0;
     }
-    cell* point = get(0, num);
+    cell* point = get(col, num);
     initname(point->x, point->y, "     ", len, table);
     initname(x, y, point->name, len, table);
     point->x = x, point->y = y;
+    return 1;
 }
 
 int getdir(int dir, int x, int y) {
@@ -31,14 +32,14 @@ int getdir(int dir, int x, int y) {
     else if (dir == 4)
         x--, y += (x % 2);
     else if (dir == 5)
-        x++, y -= (x % 2 == 0);
+        x++, y -= !(x % 2);
     else 
-        x--, y -= (x % 2 == 0);
+        x--, y -= !(x % 2);
     return x * ZZ + y;
 }
 
-void split(int col, int num, char table[512][512][3], int len, int rel[512][512], HANDLE h, WORD wOldColorAttrs) {
-    cell* point = get(0, num);
+int split(int col, int num, char table[512][512][3], int len, int rel[512][512], HANDLE h, WORD wOldColorAttrs) {
+    cell* point = get(col, num);
     int x = point->x;
     int y = point->y;
     int can = 0;
@@ -48,14 +49,14 @@ void split(int col, int num, char table[512][512][3], int len, int rel[512][512]
     if (rel[x][y] != MITOSIS || point->sc < 80 || !can) {
         Print("INVALID INPUT\nTRY AGAIN\n");
         sleep(2);
-        return ;
+        return 0;
     }
-    del(0, point);
+    del(col, point);
     cell* mem = NEW();
     GenerateName(mem);
     mem->x = x, mem->y = y;
     mem->sc = 40;
-    add(0, mem);
+    add(col, mem);
     initname(mem->x, mem->y, mem->name, len, table);
     int dir = rand() % 6 + 1;
     while (!valid(getdir(dir, x, y) / ZZ, getdir(dir, x, y) % ZZ, len, rel))
@@ -64,19 +65,23 @@ void split(int col, int num, char table[512][512][3], int len, int rel[512][512]
     GenerateName(nem);
     nem->x = getdir(dir, x, y) / ZZ, nem->y = getdir(dir, x, y) % ZZ;
     nem->sc = 40;
-    add(0, nem);
+    add(col, nem);
     initname(nem->x, nem->y, nem->name, len, table);
+    return 1;
 }
 
-void TakeTurn(int col, int num, char table[512][512][3], int len, int rel[512][512], int remain[512][512], HANDLE h, WORD wOldColorAttrs, int is, int turn) {
+int TakeTurn(int col, int num, char table[512][512][3], int len, int rel[512][512], int remain[512][512], HANDLE h, WORD wOldColorAttrs, int is, int turn) {
     cell* point = get(col, num);
     if (point == NULL) {
         Print("INVALID INPUT\nTRY AGAIN\n");
         sleep(2);
         SetConsoleTextAttribute ( h, wOldColorAttrs); 
-        return ;
+        return 0;        
     }
-    SetConsoleTextAttribute ( h, FOREGROUND_BLUE);
+    if (is)
+        SetConsoleTextAttribute ( h, turn ? FOREGROUND_RED : FOREGROUND_BLUE);
+    else 
+        SetConsoleTextAttribute ( h, FOREGROUND_BLUE);
     Print("[1]Move\n");
     Print("[2]Split a cell\n");
     Print("[3]Boost energy\n");
@@ -98,10 +103,14 @@ void TakeTurn(int col, int num, char table[512][512][3], int len, int rel[512][5
         int x = point->x, y = point->y;
         x = getdir(dir, x, y);
         y = x % ZZ, x = x / ZZ;
-        move(col, num, table, len, rel, h, wOldColorAttrs, x, y);
-    } else if (typ == 2) 
-        split(col, num, table, len, rel, h, wOldColorAttrs);
-    else if (typ == 3) {
+        int tmp = move(col, num, table, len, rel, h, wOldColorAttrs, x, y);
+        if (is && !tmp)
+            return 0;
+    } else if (typ == 2) {
+        int tmp = split(col, num, table, len, rel, h, wOldColorAttrs);
+        if (is && !tmp)
+            return 0;
+    } else if (typ == 3) {
         int x = point->x, y = point->y;
         if (rel[x][y] == ENERGY) {
             if (remain[x][y] < 15)
@@ -118,14 +127,17 @@ void TakeTurn(int col, int num, char table[512][512][3], int len, int rel[512][5
         } else {
             Print("INVALID INPUT\nTRY AGAIN\n");
             sleep(2);
+            return 0;
         }
     } else {  // 0, len, Z, table, rel, remain, cell 
         if (!is)
             SavePrint1(len, rel, remain);
         else 
             SavePrint2(len, rel, remain, turn);
+        return 0;
     }
     SetConsoleTextAttribute ( h, wOldColorAttrs); 
+    return 1;
 }
 
 void start(char table[512][512][3], int len, int rel[512][512], int remain[512][512], HANDLE h, WORD wOldColorAttrs, int typ, int is) {

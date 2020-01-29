@@ -66,6 +66,7 @@ int main() {
         return 0;
     else if (tmp == 1) {
         len = LoadRead(rel, remain, table);
+        printf("$");
         turn = len % ZZ, len = len / ZZ;
         if (len % 2) {
             len /= 2;
@@ -76,6 +77,7 @@ int main() {
         }
     } else 
         start2(table, len, rel, remain, h, wOldColorAttrs, 1, 0, 1);
+    SetConsoleTextAttribute ( h, wOldColorAttrs);
     return 0;
 }
 
