@@ -1,5 +1,3 @@
-#define ZZ  499349
-
 void Print(char* str) {
     for (int i = 0; str[i] != '\0'; i++) {
         Sleep(10);

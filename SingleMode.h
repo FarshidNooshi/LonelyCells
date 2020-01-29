@@ -1,7 +1,4 @@
-
-enum blocks { ENERGY = 1, MITOSIS, FORBIDDEN, NORMAL};
-
-void initname(int x, int y, char* name, int len, char table[512][512][3]) {
+void initname(int x, int y, char* name, int len, char table[MAXN][MAXN][3]) {
     x = IJTOXY(x, y, len);
     y = x % ZZ, x = x / ZZ;
     table[y - 1][x][2] = name[0];
@@ -9,10 +6,12 @@ void initname(int x, int y, char* name, int len, char table[512][512][3]) {
     table[y - 1][x + 2][0] = name[4];
 }
 
-int move(int col, int num, char table[512][512][3], int len, int rel[512][512], HANDLE h, WORD wOldColorAttrs, int x, int y) {
+int move(int col, int num, char table[MAXN][MAXN][3], int len, int rel[MAXN][MAXN], HANDLE h, WORD wOldColorAttrs, int x, int y, int yes) {
     if (!valid(x, y, len, rel)) {
-        Print("INVALID INPUT\nTRY AGAIN\n");
-        sleep(2);
+        if (!col) {
+            Print("INVALID INPUT\nTRY AGAIN\n");
+            sleep(2);
+        }
         return 0;
     }
     cell* point = get(col, num);
@@ -38,7 +37,7 @@ int getdir(int dir, int x, int y) {
     return x * ZZ + y;
 }
 
-int split(int col, int num, char table[512][512][3], int len, int rel[512][512], HANDLE h, WORD wOldColorAttrs) {
+int split(int col, int num, char table[MAXN][MAXN][3], int len, int rel[MAXN][MAXN], HANDLE h, WORD wOldColorAttrs, int yes) {
     cell* point = get(col, num);
     int x = point->x;
     int y = point->y;
@@ -47,8 +46,10 @@ int split(int col, int num, char table[512][512][3], int len, int rel[512][512],
         if (valid(getdir(i, x, y) / ZZ, getdir(i, x, y) % ZZ, len, rel))
             can = 1;
     if (rel[x][y] != MITOSIS || point->sc < 80 || !can) {
-        Print("INVALID INPUT\nTRY AGAIN\n");
-        sleep(2);
+        if (!col) {
+            Print("INVALID INPUT\nTRY AGAIN\n");
+            sleep(2);
+        }
         return 0;
     }
     del(col, point);
@@ -70,44 +71,56 @@ int split(int col, int num, char table[512][512][3], int len, int rel[512][512],
     return 1;
 }
 
-int TakeTurn(int col, int num, char table[512][512][3], int len, int rel[512][512], int remain[512][512], HANDLE h, WORD wOldColorAttrs, int is, int turn) {
-    cell* point = get(col, num);
+int TakeTurn(int col, int num, char table[MAXN][MAXN][3], int len, int rel[MAXN][MAXN], int remain[MAXN][MAXN], HANDLE h, WORD wOldColorAttrs, int is, int turn, int yes) {
+    cell* point;
+    if (num == -1) {
+        int cnt = 0;
+        while (get(col, cnt)) cnt++;
+        num = rand() % cnt;
+    }
+    point = get(col, num);
     if (point == NULL) {
         Print("INVALID INPUT\nTRY AGAIN\n");
         sleep(2);
         SetConsoleTextAttribute ( h, wOldColorAttrs); 
-        return 0;        
+        return 0;
     }
     if (is)
         SetConsoleTextAttribute ( h, turn ? FOREGROUND_RED : FOREGROUND_BLUE);
     else 
         SetConsoleTextAttribute ( h, FOREGROUND_BLUE);
-    Print("[1]Move\n");
-    Print("[2]Split a cell\n");
-    Print("[3]Boost energy\n");
-    Print("[4]Save\n");
-    Print("[5]Exit\n");
-    int typ;    scanf("%d", &typ);
+    int typ = rand() % 3 + 1;
+    if (col == 0) {
+        Print("[1]Move\n");
+        Print("[2]Split a cell\n");
+        Print("[3]Boost energy\n");
+        Print("[4]Save\n");
+        Print("[5]Exit\n");
+        scanf("%d", &typ);
+    }
     if (typ == 5) {
         SetConsoleTextAttribute ( h, wOldColorAttrs);     
         exit(0);
     }
     if (typ == 1) {
-        Print("[1]North\n");
-        Print("[2]South\n");
-        Print("[3]Northeast\n");
-        Print("[4]Northwest\n");
-        Print("[5]Southeast\n");
-        Print("[6]Southwest\n");
-        int dir;    scanf("%d", &dir);
+        int dir = rand() % 6 + 1;    
+        if (col == 0) {
+            Print("[1]North\n");
+            Print("[2]South\n");
+            Print("[3]Northeast\n");
+            Print("[4]Northwest\n");
+            Print("[5]Southeast\n");
+            Print("[6]Southwest\n");
+            scanf("%d", &dir);
+        }
         int x = point->x, y = point->y;
         x = getdir(dir, x, y);
         y = x % ZZ, x = x / ZZ;
-        int tmp = move(col, num, table, len, rel, h, wOldColorAttrs, x, y);
+        int tmp = move(col, num, table, len, rel, h, wOldColorAttrs, x, y, yes);
         if (is && !tmp)
             return 0;
     } else if (typ == 2) {
-        int tmp = split(col, num, table, len, rel, h, wOldColorAttrs);
+        int tmp = split(col, num, table, len, rel, h, wOldColorAttrs, yes);
         if (is && !tmp)
             return 0;
     } else if (typ == 3) {
@@ -125,22 +138,24 @@ int TakeTurn(int col, int num, char table[512][512][3], int len, int rel[512][51
                 else 
                     table[y - 2][x + 1][0] = remain[i][j] / 10 + '0', table[y - 2][x + 1][1] = remain[i][j] % 10 + '0', table[y - 2][x + 1][2] = ' ';
         } else {
-            Print("INVALID INPUT\nTRY AGAIN\n");
-            sleep(2);
+            if (col == 0) {
+                Print("INVALID INPUT\nTRY AGAIN\n");
+                sleep(2);
+            }
             return 0;
         }
     } else {  // 0, len, Z, table, rel, remain, cell 
         if (!is)
             SavePrint1(len, rel, remain);
         else 
-            SavePrint2(len, rel, remain, turn);
+            SavePrint2(len, rel, remain, turn, yes);// yes = 0 -> human // yes = 1 -> cpu
         return 0;
     }
     SetConsoleTextAttribute ( h, wOldColorAttrs); 
     return 1;
 }
 
-void start(char table[512][512][3], int len, int rel[512][512], int remain[512][512], HANDLE h, WORD wOldColorAttrs, int typ, int is) {
+void start(char table[MAXN][MAXN][3], int len, int rel[MAXN][MAXN], int remain[MAXN][MAXN], HANDLE h, WORD wOldColorAttrs, int typ, int is) {
     int Z = 4 * len + 3;
     if (typ) {
         SetConsoleTextAttribute ( h, FOREGROUND_BLUE);
@@ -163,6 +178,6 @@ void start(char table[512][512][3], int len, int rel[512][512], int remain[512][
         printcells(0, 0, h, wOldColorAttrs);
         SetConsoleTextAttribute ( h, FOREGROUND_BLUE);
         int num;    scanf("%d", &num);
-        TakeTurn(0, --num, table, len, rel, remain, h, wOldColorAttrs, is, 0);
+        TakeTurn(0, --num, table, len, rel, remain, h, wOldColorAttrs, is, 0, 0);
     }
 }

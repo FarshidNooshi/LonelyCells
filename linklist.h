@@ -1,4 +1,3 @@
-#include<stdlib.h>
 #ifndef DEBUG
 typedef struct cell cell;
 struct cell {
@@ -8,12 +7,6 @@ struct cell {
 } *lst[2];
 #define DEBUG
 #endif
-
-#define ZZ  499349
-
-void init(char table[512][512][3], int len);
-void initname(int x, int y, char* name, int len, char table[512][512][3]);
-int AddToTable(int i, int j, int state, int sc, int len, char table[512][512][3]);
 
 cell* NEW() {
     cell* ret = (cell*)malloc(sizeof(cell));
@@ -82,7 +75,7 @@ void printcells(int num, int col, HANDLE h, WORD wOldColorAttrs) {
     SetConsoleTextAttribute ( h, wOldColorAttrs); 
 }
 
-int valid(int x, int y, int len, int rel[512][512]) {
+int valid(int x, int y, int len, int rel[MAXN][MAXN]) {
     if (x < 0 || x >= len || y < 0 || y >= len || rel[x][y] == 3)
         return 0;
     for (int p = 0; p < 2; p++) {
@@ -96,7 +89,8 @@ int valid(int x, int y, int len, int rel[512][512]) {
     return 1;
 }
 
-int LoadRead(int rel[512][512], int remain[512][512], char table[512][512][3]) {
+int LoadRead(int rel[MAXN][MAXN], int remain[MAXN][MAXN], char table[MAXN][MAXN][3]) {
+    int against;
     FILE* fs = fopen("save.bin", "rb");
     int typ;    fread(&typ, sizeof(int), 1, fs);
     int len, turn;   
@@ -123,6 +117,7 @@ int LoadRead(int rel[512][512], int remain[512][512], char table[512][512][3]) {
                 initname(mem->x, mem->y, mem->name, len, table);
             }
         }
+        fread(&against, sizeof(int), 1, fs);
     } else {
         int num;
         fread(&num, sizeof(int), 1, fs);
@@ -143,14 +138,13 @@ int LoadRead(int rel[512][512], int remain[512][512], char table[512][512][3]) {
             AddToTable(i, j, rel[i][j], remain[i][j], len, table);
     for (cell* cur = lst[0]; cur; cur = cur->nxt)
         initname(cur->x, cur->y, cur->name, len, table);
-    if (typ) {
+    if (typ) 
         for (cell* cur = lst[1]; cur; cur = cur->nxt)
             initname(cur->x, cur->y, cur->name, len, table);
-    }
-    return (len * 2 + typ) * ZZ + turn;
+    return ((len * 2 + typ) * ZZ + turn) * 2 + against;
 }
 
-void SavePrint1(int len, int rel[512][512], int remain[512][512]) {
+void SavePrint1(int len, int rel[MAXN][MAXN], int remain[MAXN][MAXN]) {
     FILE* fs = fopen("save.bin", "wb");
     int tmp = 0;
     fwrite(&tmp, sizeof(int), 1, fs);
@@ -174,7 +168,7 @@ void SavePrint1(int len, int rel[512][512], int remain[512][512]) {
     fclose(fs);
 }
 
-void SavePrint2(int len, int rel[512][512], int remain[512][512], int turn) {
+void SavePrint2(int len, int rel[MAXN][MAXN], int remain[MAXN][MAXN], int turn, int yes) {
     FILE* fs = fopen("save.bin", "wb");
     int tmp = 1;
     fwrite(&tmp, sizeof(int), 1, fs);
@@ -198,5 +192,6 @@ void SavePrint2(int len, int rel[512][512], int remain[512][512], int turn) {
             fwrite(&pnt->sc, sizeof(int), 1, fs);
         }
     }
+    fwrite(&yes, sizeof(int), 1, fs);
     fclose(fs);
 }

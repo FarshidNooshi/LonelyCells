@@ -5,12 +5,11 @@
 #include<stdlib.h>
 #include<unistd.h>
 #include<Windows.h>
+#include"functions.h"
 #include"linklist.h"
 #include"MapEditor.h"
 #include"MultiMode.h"
 #include"SingleMode.h"
-
-#define MAXN  512
 
 #ifndef DEBUG
 typedef struct cell cell;
@@ -23,10 +22,8 @@ struct cell {
 #endif
 
 int rel[MAXN][MAXN], remain[MAXN][MAXN], len;
-int Z,  n = 3, turn;
+int Z,  n = 3, turn, agnst;
 char table[MAXN][MAXN][3];
-
-void _();
 
 int main() {
     system("cls");
@@ -66,17 +63,17 @@ int main() {
         return 0;
     else if (tmp == 1) {
         len = LoadRead(rel, remain, table);
-        printf("$");
+        agnst = len % 2, len /= 2;
         turn = len % ZZ, len = len / ZZ;
         if (len % 2) {
             len /= 2;
-            start2(table, len, rel, remain, h, wOldColorAttrs, 0, turn, 1);
+            start2(table, len, rel, remain, h, wOldColorAttrs, 0, turn, 1, agnst);
         } else {
             len /= 2;
             start(table, len, rel, remain, h, wOldColorAttrs, 0, 0);
         }
     } else 
-        start2(table, len, rel, remain, h, wOldColorAttrs, 1, 0, 1);
+        start2(table, len, rel, remain, h, wOldColorAttrs, 1, 0, 1, agnst);
     SetConsoleTextAttribute ( h, wOldColorAttrs);
     return 0;
 }
