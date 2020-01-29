@@ -48,7 +48,24 @@ void start2(char table[MAXN][MAXN][3], int len, int rel[MAXN][MAXN], int remain[
         int tmp = TakeTurn(turn, --num, table, len, rel, remain, h, wOldColorAttrs, is, turn, (yes == 1));
         while (!tmp && yes == 1 && turn) 
             tmp = TakeTurn(turn, -1, table, len, rel, remain, h, wOldColorAttrs, is, turn, (yes == 1));
-        if (tmp)
+        if (tmp == 1)
             turn = 1 - turn;
+        else if (tmp == 2)
+            break;
     }
+    SetConsoleTextAttribute ( h, FOREGROUND_BLUE);
+    int sm = 0;
+    for (cell* cur = lst[0]; cur; cur = cur->nxt)
+        sm += cur->sc;
+    Print("The total score of player one is ");
+    printf("%d\n", sm);
+    SetConsoleTextAttribute ( h, FOREGROUND_RED);
+    sm = 0;
+    for (cell* cur = lst[1]; cur; cur = cur->nxt)
+        sm += cur->sc;
+    Print("The total score of player two is ");
+    printf("%d\n", sm);
+    sleep(5);
+    lst[0] = NULL;
+    lst[1] = NULL;
 }

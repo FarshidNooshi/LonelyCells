@@ -49,31 +49,42 @@ int main() {
         for (int j = 0; j < len; j++)
             if (rel[i][j] == ENERGY)
                 remain[i][j] = 100;
-    system("cls");
-    PRint(table, Z, h, wOldColorAttrs);
     Print("Welcome to the game\n");
-    printf("[1]Load\n");
-    printf("[2]New single player game\n");
-    printf("[3]New Multiplayer game\n");
-    printf("[4]Exit\n");
-    scanf("%d", &tmp);
-    if (tmp == 2)
-        start(table, len, rel, remain, h, wOldColorAttrs, 1, 0);
-    else if (tmp == 4) 
-        return 0;
-    else if (tmp == 1) {
-        len = LoadRead(rel, remain, table);
-        agnst = len % 2, len /= 2;
-        turn = len % ZZ, len = len / ZZ;
-        if (len % 2) {
-            len /= 2;
-            start2(table, len, rel, remain, h, wOldColorAttrs, 0, turn, 1, agnst);
-        } else {
-            len /= 2;
-            start(table, len, rel, remain, h, wOldColorAttrs, 0, 0);
-        }
-    } else 
-        start2(table, len, rel, remain, h, wOldColorAttrs, 1, 0, 1, agnst);
+    sleep(2);
+    while (true) {
+        init(table, len);
+        for (int i = 0; i < len; i++)
+            for (int j = 0; j < len; j++)
+                AddToTable(i, j, rel[i][j], 100, len, table);
+        for (int i = 0; i < len; i++)
+            for (int j = 0; j < len; j++)
+                if (rel[i][j] == ENERGY)
+                    remain[i][j] = 100;
+        system("cls");
+        PRint(table, Z, h, wOldColorAttrs);
+        printf("[1]Load\n");
+        printf("[2]New single player game\n");
+        printf("[3]New Multiplayer game\n");
+        printf("[4]Exit\n");
+        scanf("%d", &tmp);
+        if (tmp == 2)
+            start(table, len, rel, remain, h, wOldColorAttrs, 1, 0);
+        else if (tmp == 4) 
+            return 0;
+        else if (tmp == 1) {
+            len = LoadRead(rel, remain, table);
+            agnst = len % 2, len /= 2;
+            turn = len % ZZ, len = len / ZZ;
+            if (len % 2) {
+                len /= 2;
+                start2(table, len, rel, remain, h, wOldColorAttrs, 0, turn, 1, agnst);
+            } else {
+                len /= 2;
+                start(table, len, rel, remain, h, wOldColorAttrs, 0, 0);
+            }
+        } else 
+            start2(table, len, rel, remain, h, wOldColorAttrs, 1, 0, 1, agnst);
+    }
     SetConsoleTextAttribute ( h, wOldColorAttrs);
     return 0;
 }

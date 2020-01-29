@@ -15,6 +15,11 @@ cell* NEW() {
     return ret;
 }
 
+void upd(int col, int num, int val) {
+    cell* point = get(col, num);
+    point->sc += val;
+}
+
 int find(int num, cell x) {
     int i = 0;
     for (cell* cur = lst[num]; cur != NULL; cur = cur->nxt, i++)
@@ -106,7 +111,6 @@ int LoadRead(int rel[MAXN][MAXN], int remain[MAXN][MAXN], char table[MAXN][MAXN]
         int num;
         for (int p = 0; p < 2; p++) {
             fread(&num, sizeof(int), 1, fs);
-            printf("%d %d\n", p, num);
             for (int i = 0; i < num; i++) {
                 cell* mem = NEW();
                 fread(mem->name, sizeof(char) * 6, 6, fs);

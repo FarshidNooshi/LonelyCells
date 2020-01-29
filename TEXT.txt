@@ -1,0 +1,17 @@
+The length of the table is 4
+{(0, 0), NORMAL, not occupied}
+{(0, 1), NORMAL, not occupied}
+{(0, 2), NORMAL, not occupied}
+{(0, 3), ENERGY = 100, not occupied}
+{(1, 0), NORMAL, not occupied}
+{(1, 1), NORMAL, not occupied}
+{(1, 2), MITOSIS, not occupied}
+{(1, 3), NORMAL, not occupied}
+{(2, 0), NORMAL, not occupied}
+{(2, 1), FORBIDDEN, not occupied}
+{(2, 2), NORMAL, not occupied}
+{(2, 3), NORMAL, not occupied}
+{(3, 0), NORMAL, not occupied}
+{(3, 1), NORMAL, not occupied}
+{(3, 2), NORMAL, not occupied}
+{(3, 3), NORMAL, not occupied}

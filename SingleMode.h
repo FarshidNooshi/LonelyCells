@@ -90,7 +90,7 @@ int TakeTurn(int col, int num, char table[MAXN][MAXN][3], int len, int rel[MAXN]
     else 
         SetConsoleTextAttribute ( h, FOREGROUND_BLUE);
     int typ = rand() % 3 + 1;
-    if (col == 0) {
+    if (!yes || col == 0) {
         Print("[1]Move\n");
         Print("[2]Split a cell\n");
         Print("[3]Boost energy\n");
@@ -100,11 +100,11 @@ int TakeTurn(int col, int num, char table[MAXN][MAXN][3], int len, int rel[MAXN]
     }
     if (typ == 5) {
         SetConsoleTextAttribute ( h, wOldColorAttrs);     
-        exit(0);
+        return 2;
     }
     if (typ == 1) {
         int dir = rand() % 6 + 1;    
-        if (col == 0) {
+        if (!yes || col == 0) {
             Print("[1]North\n");
             Print("[2]South\n");
             Print("[3]Northeast\n");
@@ -130,15 +130,15 @@ int TakeTurn(int col, int num, char table[MAXN][MAXN][3], int len, int rel[MAXN]
                 point->sc += remain[x][y], remain[x][y] = 0;
             else 
                 point->sc += 15, remain[x][y] -= 15;
-                int i = x, j = y;
-                x = IJTOXY(i, j, len);
-                y = x % ZZ, x = x / ZZ;
-                if (remain[i][j] < 10)
-                    table[y - 2][x + 1][0] = remain[i][j] + '0', table[y - 2][x + 1][1] = ' ';
-                else 
-                    table[y - 2][x + 1][0] = remain[i][j] / 10 + '0', table[y - 2][x + 1][1] = remain[i][j] % 10 + '0', table[y - 2][x + 1][2] = ' ';
+            int i = x, j = y;
+            x = IJTOXY(i, j, len);
+            y = x % ZZ, x = x / ZZ;
+            if (remain[i][j] < 10)
+                table[y - 2][x + 1][0] = remain[i][j] + '0', table[y - 2][x + 1][1] = ' ';
+            else 
+                table[y - 2][x + 1][0] = remain[i][j] / 10 + '0', table[y - 2][x + 1][1] = remain[i][j] % 10 + '0', table[y - 2][x + 1][2] = ' ';
         } else {
-            if (col == 0) {
+            if (!yes || col == 0) {
                 Print("INVALID INPUT\nTRY AGAIN\n");
                 sleep(2);
             }
@@ -178,6 +178,16 @@ void start(char table[MAXN][MAXN][3], int len, int rel[MAXN][MAXN], int remain[M
         printcells(0, 0, h, wOldColorAttrs);
         SetConsoleTextAttribute ( h, FOREGROUND_BLUE);
         int num;    scanf("%d", &num);
-        TakeTurn(0, --num, table, len, rel, remain, h, wOldColorAttrs, is, 0, 0);
+        int x = TakeTurn(0, --num, table, len, rel, remain, h, wOldColorAttrs, is, 0, 0);
+        if (x == 2)
+            break;
     }
+    SetConsoleTextAttribute ( h, FOREGROUND_BLUE);
+    int sm = 0;
+    for (cell* cur = lst[0]; cur; cur = cur->nxt)
+        sm += cur->sc;
+    Print("The total score of player one is ");
+    printf("%d\n", sm);
+    sleep(5);
+    lst[0] = NULL;
 }
