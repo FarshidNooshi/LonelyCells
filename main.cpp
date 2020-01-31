@@ -22,8 +22,9 @@ struct cell {
 #endif
 
 int rel[MAXN][MAXN], remain[MAXN][MAXN], len;
-int Z,  n = 3, turn, agnst;
+int Z,  n = 3, turn, agnst, ptr;
 char table[MAXN][MAXN][3];
+order Vector[MAXN];
 
 int main() {
     system("cls");
@@ -60,6 +61,7 @@ int main() {
             for (int j = 0; j < len; j++)
                 if (rel[i][j] == ENERGY)
                     remain[i][j] = 100;
+        ptr = 0;
         system("cls");
         PRint(table, Z, h, wOldColorAttrs);
         printf("[1]Load\n");
@@ -68,22 +70,22 @@ int main() {
         printf("[4]Exit\n");
         scanf("%d", &tmp);
         if (tmp == 2)
-            start(table, len, rel, remain, h, wOldColorAttrs, 1, 0);
+            start(table, len, rel, remain, h, wOldColorAttrs, 1, 0, &ptr, Vector);
         else if (tmp == 4) 
             return 0;
         else if (tmp == 1) {
-            len = LoadRead(rel, remain, table);
+            len = LoadRead(rel, remain, table, &ptr, Vector);
             agnst = len % 2, len /= 2;
             turn = len % ZZ, len = len / ZZ;
             if (len % 2) {
                 len /= 2;
-                start2(table, len, rel, remain, h, wOldColorAttrs, 0, turn, 1, agnst);
+                start2(table, len, rel, remain, h, wOldColorAttrs, 0, turn, 1, agnst, Vector);
             } else {
                 len /= 2;
-                start(table, len, rel, remain, h, wOldColorAttrs, 0, 0);
+                start(table, len, rel, remain, h, wOldColorAttrs, 0, 0, &ptr, Vector);
             }
         } else 
-            start2(table, len, rel, remain, h, wOldColorAttrs, 1, 0, 1, agnst);
+            start2(table, len, rel, remain, h, wOldColorAttrs, 1, 0, 1, agnst, Vector);
     }
     SetConsoleTextAttribute ( h, wOldColorAttrs);
     return 0;

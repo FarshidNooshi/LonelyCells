@@ -94,7 +94,8 @@ int valid(int x, int y, int len, int rel[MAXN][MAXN]) {
     return 1;
 }
 
-int LoadRead(int rel[MAXN][MAXN], int remain[MAXN][MAXN], char table[MAXN][MAXN][3]) {
+int LoadRead(int rel[MAXN][MAXN], int remain[MAXN][MAXN], char table[MAXN][MAXN][3], int* ptrr, order Vector[MAXN]) {
+    int ptr = *ptrr;
     int against;
     FILE* fs = fopen("save.bin", "rb");
     int typ;    fread(&typ, sizeof(int), 1, fs);
@@ -134,6 +135,37 @@ int LoadRead(int rel[MAXN][MAXN], int remain[MAXN][MAXN], char table[MAXN][MAXN]
             AddEnd(0, mem);
             initname(mem->x, mem->y, mem->name, len, table);
         }
+        fread(ptrr, sizeof(int), 1, fs);
+        ptr = *ptrr;
+        for (int i = 0; i < ptr; i++) {
+            fread(&Vector[i].typ, sizeof(int), 1, fs);
+            if (Vector[i].typ == 1) {
+                fread(Vector[i].ch.name, sizeof(char) * 6, 6, fs);
+                fread(&Vector[i].ch.x, sizeof(int), 1, fs);
+                fread(&Vector[i].ch.y, sizeof(int), 1, fs);
+                fread(&Vector[i].ch.sc, sizeof(int), 1, fs);
+                fread(&Vector[i].dir, sizeof(int), 1, fs);
+            } else if (Vector[i].typ == 2) {
+                fread(Vector[i].ch.name, sizeof(char) * 6, 6, fs);
+                fread(&Vector[i].ch.x, sizeof(int), 1, fs);
+                fread(&Vector[i].ch.y, sizeof(int), 1, fs);
+                fread(&Vector[i].ch.sc, sizeof(int), 1, fs);
+                fread(Vector[i].pa1.name, sizeof(char) * 6, 6, fs);
+                fread(&Vector[i].pa1.x, sizeof(int), 1, fs);
+                fread(&Vector[i].pa1.y, sizeof(int), 1, fs);
+                fread(&Vector[i].pa1.sc, sizeof(int), 1, fs);
+                fread(Vector[i].pa2.name, sizeof(char) * 6, 6, fs);
+                fread(&Vector[i].pa2.x, sizeof(int), 1, fs);
+                fread(&Vector[i].pa2.y, sizeof(int), 1, fs);
+                fread(&Vector[i].pa2.sc, sizeof(int), 1, fs);
+            } else {
+                fread(Vector[i].pa1.name, sizeof(char) * 6, 6, fs);
+                fread(&Vector[i].pa1.x, sizeof(int), 1, fs);
+                fread(&Vector[i].pa1.y, sizeof(int), 1, fs);
+                fread(&Vector[i].pa1.sc, sizeof(int), 1, fs);
+                fread(&Vector[i].dir, sizeof(int), 1, fs);
+            }
+        }
     }
     fclose(fs);
     init(table, len);
@@ -148,7 +180,7 @@ int LoadRead(int rel[MAXN][MAXN], int remain[MAXN][MAXN], char table[MAXN][MAXN]
     return ((len * 2 + typ) * ZZ + turn) * 2 + against;
 }
 
-void SavePrint1(int len, int rel[MAXN][MAXN], int remain[MAXN][MAXN]) {
+void SavePrint1(int len, int rel[MAXN][MAXN], int remain[MAXN][MAXN], int ptr, order Vector[MAXN]) {
     FILE* fs = fopen("save.bin", "wb");
     int tmp = 0;
     fwrite(&tmp, sizeof(int), 1, fs);
@@ -168,6 +200,36 @@ void SavePrint1(int len, int rel[MAXN][MAXN], int remain[MAXN][MAXN]) {
         fwrite(&pnt->x, sizeof(int), 1, fs);
         fwrite(&pnt->y, sizeof(int), 1, fs);
         fwrite(&pnt->sc, sizeof(int), 1, fs);
+    }
+    fwrite(&ptr, sizeof(int), 1, fs);
+    for (int i = 0; i < ptr; i++) {
+        fwrite(&Vector[i].typ, sizeof(int), 1, fs);
+        if (Vector[i].typ == 1) {
+            fwrite(Vector[i].ch.name, sizeof(char) * 6, 6, fs);
+            fwrite(&Vector[i].ch.x, sizeof(int), 1, fs);
+            fwrite(&Vector[i].ch.y, sizeof(int), 1, fs);
+            fwrite(&Vector[i].ch.sc, sizeof(int), 1, fs);
+            fwrite(&Vector[i].dir, sizeof(int), 1, fs);
+        } else if (Vector[i].typ == 2) {
+            fwrite(Vector[i].ch.name, sizeof(char) * 6, 6, fs);
+            fwrite(&Vector[i].ch.x, sizeof(int), 1, fs);
+            fwrite(&Vector[i].ch.y, sizeof(int), 1, fs);
+            fwrite(&Vector[i].ch.sc, sizeof(int), 1, fs);
+            fwrite(Vector[i].pa1.name, sizeof(char) * 6, 6, fs);
+            fwrite(&Vector[i].pa1.x, sizeof(int), 1, fs);
+            fwrite(&Vector[i].pa1.y, sizeof(int), 1, fs);
+            fwrite(&Vector[i].pa1.sc, sizeof(int), 1, fs);
+            fwrite(Vector[i].pa2.name, sizeof(char) * 6, 6, fs);
+            fwrite(&Vector[i].pa2.x, sizeof(int), 1, fs);
+            fwrite(&Vector[i].pa2.y, sizeof(int), 1, fs);
+            fwrite(&Vector[i].pa2.sc, sizeof(int), 1, fs);
+        } else {
+            fwrite(Vector[i].pa1.name, sizeof(char) * 6, 6, fs);
+            fwrite(&Vector[i].pa1.x, sizeof(int), 1, fs);
+            fwrite(&Vector[i].pa1.y, sizeof(int), 1, fs);
+            fwrite(&Vector[i].pa1.sc, sizeof(int), 1, fs);
+            fwrite(&Vector[i].dir, sizeof(int), 1, fs);
+        }
     }
     fclose(fs);
 }

@@ -1,4 +1,4 @@
-void start2(char table[MAXN][MAXN][3], int len, int rel[MAXN][MAXN], int remain[MAXN][MAXN], HANDLE h, WORD wOldColorAttrs, int typ, int turn, int is, int yes) {
+void start2(char table[MAXN][MAXN][3], int len, int rel[MAXN][MAXN], int remain[MAXN][MAXN], HANDLE h, WORD wOldColorAttrs, int typ, int turn, int is, int yes, order Vector[MAXN]) {
     int Z = 4 * len + 3;
     if (typ) {
         Print("Do you want to play against computer ?\n[1]Yes\n[2]No\n");
@@ -45,9 +45,9 @@ void start2(char table[MAXN][MAXN][3], int len, int rel[MAXN][MAXN], int remain[
             scanf("%d", &num);
         else if (turn)
             num = 0;
-        int tmp = TakeTurn(turn, --num, table, len, rel, remain, h, wOldColorAttrs, is, turn, (yes == 1));
+        int tmp = TakeTurn(turn, --num, table, len, rel, remain, h, wOldColorAttrs, is, turn, (yes == 1), NULL, Vector);
         while (!tmp && yes == 1 && turn) 
-            tmp = TakeTurn(turn, -1, table, len, rel, remain, h, wOldColorAttrs, is, turn, (yes == 1));
+            tmp = TakeTurn(turn, -1, table, len, rel, remain, h, wOldColorAttrs, is, turn, (yes == 1), NULL, Vector);
         if (tmp == 1)
             turn = 1 - turn;
         else if (tmp == 2)
