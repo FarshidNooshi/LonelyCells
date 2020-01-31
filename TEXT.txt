@@ -1,17 +1,6 @@
-The length of the table is 4
-{(0, 0), NORMAL, not occupied}
-{(0, 1), NORMAL, not occupied}
-{(0, 2), NORMAL, not occupied}
-{(0, 3), ENERGY = 100, not occupied}
+The length of the table is 2
+We have the total of 1 cells
+{(0, 0), FORBIDDEN, not occupied}
+{(0, 1), ENERGY = 100, occupied by ONCPm with score of 0}
 {(1, 0), NORMAL, not occupied}
-{(1, 1), NORMAL, not occupied}
-{(1, 2), MITOSIS, not occupied}
-{(1, 3), NORMAL, not occupied}
-{(2, 0), NORMAL, not occupied}
-{(2, 1), FORBIDDEN, not occupied}
-{(2, 2), NORMAL, not occupied}
-{(2, 3), NORMAL, not occupied}
-{(3, 0), NORMAL, not occupied}
-{(3, 1), NORMAL, not occupied}
-{(3, 2), NORMAL, not occupied}
-{(3, 3), NORMAL, not occupied}
+{(1, 1), MITOSIS, not occupied}

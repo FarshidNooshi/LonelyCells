@@ -23,11 +23,11 @@ struct order {
 enum blocks { ENERGY = 1, MITOSIS, FORBIDDEN, NORMAL};
 
 int TakeTurn(int col, int num, char table[MAXN][MAXN][3], int len, int rel[MAXN][MAXN], int remain[MAXN][MAXN], HANDLE h, WORD wOldColorAttrs, int is, int turn, int yes, int* ptrr, order Vector[MAXN]);
-void start2(char table[MAXN][MAXN][3], int len, int rel[MAXN][MAXN], int remain[MAXN][MAXN], HANDLE h, WORD wOldColorAttrs, int typ, int turn, int is, order Vector[MAXN]);
+void start2(char table[MAXN][MAXN][3], int len, int rel[MAXN][MAXN], int remain[MAXN][MAXN], HANDLE h, WORD wOldColorAttrs, int typ, int turn, int is, int yes, order Vector[MAXN]);
 void initname(int x, int y, char* name, int len, char table[MAXN][MAXN][3]);
-int move(int col, int num, char table[MAXN][MAXN][3], int len, int rel[MAXN][MAXN], HANDLE h, WORD wOldColorAttrs, int x, int y);
+int move(int col, int num, char table[MAXN][MAXN][3], int len, int rel[MAXN][MAXN], HANDLE h, WORD wOldColorAttrs, int x, int y, int yes);
 int getdir(int dir, int x, int y);
-int split(int col, int num, char table[MAXN][MAXN][3], int len, int rel[MAXN][MAXN], HANDLE h, WORD wOldColorAttrs, int* ptrr, order Vector[MAXN]);
+int split(int col, int num, char table[MAXN][MAXN][3], int len, int rel[MAXN][MAXN], HANDLE h, WORD wOldColorAttrs, int yes, int* ptrr, order Vector[MAXN]);
 void start(char table[MAXN][MAXN][3], int len, int rel[MAXN][MAXN], int remain[MAXN][MAXN], HANDLE h, WORD wOldColorAttrs, int typ, int is, int* ptrr, order Vector[MAXN]);
 cell* NEW();
 int find(int num, cell x);
@@ -38,9 +38,9 @@ void AddEnd(int num, cell* temp);
 void GenerateName(struct cell* mem);
 void printcells(int num, int col, HANDLE h, WORD wOldColorAttrs);
 int valid(int x, int y, int len, int rel[MAXN][MAXN]);
-int LoadRead(int rel[MAXN][MAXN], int remain[MAXN][MAXN], char table[MAXN][MAXN][3], int*ptrr);
-void SavePrint1(int len, int rel[MAXN][MAXN], int remain[MAXN][MAXN], int ptr);
-void SavePrint2(int len, int rel[MAXN][MAXN], int remain[MAXN][MAXN], int turn);
+int LoadRead(int rel[MAXN][MAXN], int remain[MAXN][MAXN], char table[MAXN][MAXN][3], int* ptrr, order Vector[MAXN]);
+void SavePrint1(int len, int rel[MAXN][MAXN], int remain[MAXN][MAXN], int ptr, order Vector[MAXN]);
+void SavePrint2(int len, int rel[MAXN][MAXN], int remain[MAXN][MAXN], int turn, int yes);
 void Print(char* str);
 int IJTOXY(int i, int j, int len);
 void PRint(char table[MAXN][MAXN][3], int Z, HANDLE h, WORD wOldColorAttrs);

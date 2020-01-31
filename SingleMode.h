@@ -38,7 +38,9 @@ int getdir(int dir, int x, int y) {
 }
 
 int split(int col, int num, char table[MAXN][MAXN][3], int len, int rel[MAXN][MAXN], HANDLE h, WORD wOldColorAttrs, int yes, int* ptrr, order Vector[MAXN]) {
-    int ptr = *ptrr;
+    int ptr = 0;
+    if (ptrr)
+        ptr = *ptrr;
     cell* point = get(col, num);
     int x = point->x;
     int y = point->y;
@@ -77,7 +79,9 @@ int split(int col, int num, char table[MAXN][MAXN][3], int len, int rel[MAXN][MA
 }
 
 int TakeTurn(int col, int num, char table[MAXN][MAXN][3], int len, int rel[MAXN][MAXN], int remain[MAXN][MAXN], HANDLE h, WORD wOldColorAttrs, int is, int turn, int yes, int* ptrr, order Vector[MAXN]) {
-    int ptr = *ptrr;
+    int ptr = 0;
+    if (ptrr)
+        ptr = *ptrr;
     cell* point;
     if (num == -1) {
         int cnt = 0;
@@ -121,7 +125,6 @@ int TakeTurn(int col, int num, char table[MAXN][MAXN][3], int len, int rel[MAXN]
             int x2 = x, y2 = y;
             x = getdir(Vector[ptr].dir, x, y);
             y = x % ZZ, x = x / ZZ;
-            printf("!%d %d", x2, y2);
             initname(x2, y2, Vector[ptr].ch.name, len, table);
             initname(x, y, "     ", len, table);
             Vector[ptr].ch.x = x, Vector[ptr].ch.y = y;
@@ -195,9 +198,10 @@ int TakeTurn(int col, int num, char table[MAXN][MAXN][3], int len, int rel[MAXN]
             Vector[ptr].typ = 3;
             Vector[ptr].ch = *point;
             if (remain[x][y] < 15)
-                point->sc += remain[x][y], Vector[(*ptrr)++].dir = remain[x][y], remain[x][y] = 0;
+                point->sc += remain[x][y], Vector[ptr].dir = remain[x][y], remain[x][y] = 0;
             else 
-                point->sc += 15, remain[x][y] -= 15, Vector[(*ptrr)++].dir = 15;
+                point->sc += 15, remain[x][y] -= 15, Vector[ptr].dir = 15;
+            if (ptrr)    (*ptrr)++;
             int i = x, j = y;
             x = IJTOXY(i, j, len);
             y = x % ZZ, x = x / ZZ;

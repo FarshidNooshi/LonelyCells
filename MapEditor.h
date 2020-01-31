@@ -12,7 +12,7 @@ int IJTOXY(int i, int j, int len) {
     return x * ZZ + y;
 }
 
-void PRint(char table[512][512][3], int Z, HANDLE h, WORD wOldColorAttrs) {
+void PRint(char table[MAXN][MAXN][3], int Z, HANDLE h, WORD wOldColorAttrs) {
     SetConsoleTextAttribute ( h, FOREGROUND_GREEN);
     for (int i = 0; i < Z; i++) {
         for (int j = 0; j < Z; j++) 
@@ -31,7 +31,7 @@ void PRint(char table[512][512][3], int Z, HANDLE h, WORD wOldColorAttrs) {
     SetConsoleTextAttribute ( h, wOldColorAttrs);
 }
 
-void init(char table[512][512][3], int len) {
+void init(char table[MAXN][MAXN][3], int len) {
     const char st[] = "** ", ts[] = "   ";
     int n = 3;
     int Z = 4 * len + 3;
@@ -97,7 +97,7 @@ void init(char table[512][512][3], int len) {
         }
 }
 
-int AddToTable(int i, int j, int state, int sc, int len, char table[512][512][3]) {
+int AddToTable(int i, int j, int state, int sc, int len, char table[MAXN][MAXN][3]) {
     int x = IJTOXY(i, j, len), y;
     y = x % ZZ, x = x / ZZ;
     if (i >= len || j >= len || state < 1 || state > 4 || i < 0 || j < 0) 
@@ -120,10 +120,10 @@ int AddToTable(int i, int j, int state, int sc, int len, char table[512][512][3]
     return 1;
 }
 
-void RunMapEditor(char table[512][512][3], WORD wOldColorAttrs) {
-    int rel[512][512];
-    for (int i = 0; i < 512; i++)
-        for (int j = 0; j < 512; j++)
+void RunMapEditor(char table[MAXN][MAXN][3], WORD wOldColorAttrs) {
+    int rel[MAXN][MAXN];
+    for (int i = 0; i < MAXN; i++)
+        for (int j = 0; j < MAXN; j++)
             rel[i][j] = -1;
     char st[] = "** ", ts[] = "   ";
     Print("Please enter the length of the table. (It should be smaller than 10 in order to fit in The CMD. )\n");
