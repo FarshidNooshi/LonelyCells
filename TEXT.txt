@@ -1,6 +1,0 @@
-The length of the table is 2
-We have the total of 1 cells
-{(0, 0), FORBIDDEN, not occupied}
-{(0, 1), ENERGY = 100, occupied by ONCPm with score of 0}
-{(1, 0), NORMAL, not occupied}
-{(1, 1), MITOSIS, not occupied}
